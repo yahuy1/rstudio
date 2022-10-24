@@ -587,7 +587,7 @@ conditional statement says is: if the number of characters of the
 variable `county_fips_clean` is equal to 4, then add a "0" in front of
 this variable; otherwise do nothing.
 
-```{r q6.3 given, echo = TRUE, eval = FALSE}
+```{r q6.3 given, echo = TRUE, eval = TRUE}
 elections_2020_clean <- elections_2020_clean %>% 
   mutate(county_fips_clean = as.character(county_fips), #convert county_fips to a character string
          county_fips_clean = ifelse(nchar(county_fips_clean) == 4,
@@ -645,7 +645,7 @@ inconsistencies for you. The `case_when` function is similar to
 
 Remember to replace `eval = FALSE` with `eval = TRUE`.
 
-```{r q6.5 given part 2, echo = TRUE, eval = FALSE}
+```{r q6.5 given part 2, echo = TRUE, eval = TRUE}
 elections_2020_clean <- elections_2020_clean %>% 
   mutate(county_fips_clean = case_when(
     county_fips_clean == "46113" ~ "46102",
@@ -753,17 +753,19 @@ sure that your files have the same name.
 
 ```{r q7.1, echo = TRUE, eval = TRUE}
 # code goes here
-
-```
+acs_soc_2019 <- read_csv("./ACSDP5Y2019.DP02-Data.csv");
+acs_eco_2019 <- read_csv("./ACSDP5Y2019.DP03-Data.csv");
+```   
 
 2\. How many variables are there in each dataset?
 
 ```{r q7.2, echo = TRUE, eval = TRUE}
 # code goes here
-
+ncol(acs_soc_2019);
+ncol(acs_eco_2019);
 ```
 
-**Answer goes here.**
+**There are 1227 variables in acs_soc_2019, there are 1099 variables in acs_eco_2019**
 
 3[\*]{style="color: red;"}. That's a lot! We need to keep only the
 variables we are interested in, and tidy the data a little. For each acs
@@ -788,7 +790,12 @@ For this task, create two new objects: `acs_soc_2019_clean` and
 
 ```{r q7.3, echo = TRUE, eval = TRUE}
 # code goes here
-
+acs_soc_2019_clean <- acs_soc_2019 %>%
+  rename(pct_high_school = DP02_0062PE) %>%
+  summarise(NAME = NAME, GEO_ID = GEO_ID, pct_high_school = pct_high_school);
+acs_eco_2019_clean <- acs_eco_2019 %>%
+  rename(mean_income = DP03_0063E, pct_const_maintenance_occ = DP03_0030PE) %>%
+  summarise(NAME = NAME, GEO_ID = GEO_ID, mean_income = mean_income, pct_const_maintenance_occ = pct_const_maintenance_occ);
 ```
 
 4\. Display the first five lines of `acs_soc_2019_clean` and
@@ -796,19 +803,21 @@ For this task, create two new objects: `acs_soc_2019_clean` and
 
 ```{r q7.4, echo = TRUE, eval = TRUE}
 # code goes here
-
+  head(acs_soc_2019_clean, n = 5L);
+  head(acs_eco_2019_clean, n = 5L);
 ```
 
 5\. What is in the first line of the datasets?
 
-**Answer goes here.**
+**The first line of the datasets contains the titles of each column/variable**
 
 6[\*]{style="color: red;"}. Drop the first row of `acs_soc_2019_clean`
 and `acs_eco_2019_clean`. Hint: the negative sign should help you.
 
 ```{r q7.6, echo = TRUE, eval = TRUE}
 # code goes here
-
+acs_eco_2019_clean <- acs_eco_2019_clean[-c(1),];
+acs_soc_2019_clean <- acs_soc_2019_clean[-c(1),];
 ```
 
 7[\*]{style="color: red;"}. Merge the `acs_soc_2019_clean` and
@@ -820,7 +829,7 @@ Create a new object called `acs_2019_clean`.
 
 ```{r q7.7, echo=TRUE, eval=TRUE}
 # code goes here
-
+acs_2019_clean = left_join(acs_soc_2019_clean, acs_eco_2019_clean);
 ```
 
 8\. What is the type of the `pct_const_maintenance_occ`, `mean_income`
@@ -828,10 +837,12 @@ and `pct_high_school` variables?
 
 ```{r q7.8, echo=TRUE, eval=TRUE}
 # code goes here
-
+typeof(acs_2019_clean$pct_const_maintenance_occ);
+typeof(acs_2019_clean$mean_income);
+typeof(acs_2019_clean$pct_high_school);
 ```
 
-**Answer goes here.**
+**All 3 are character type**
 
 9[\*]{style="color: red;"}. In the `acs_2019_clean` dataframe, convert
 the `pct_high_school`, `pct_const_maintenance_occ` and `mean_income`
@@ -847,7 +858,10 @@ equal to "null")
 
 ```{r q7.9, echo=TRUE, eval=TRUE}
 # code goes here
-
+acs_2019_clean <- acs_2019_clean %>%
+  mutate(pct_high_school = as.numeric(pct_high_school),
+         pct_const_maintenance_occ = as.numeric(pct_const_maintenance_occ),
+         mean_income = as.numeric(mean_income));
 ```
 
 10\. What is the `GEO_ID` of the county whose `NAME` is "McDuffie
@@ -855,7 +869,7 @@ County, Georgia" in the `acs_2019_clean` dataframe?
 
 ```{r q7.10, echo=TRUE, eval=TRUE}
 # code goes here
-
+acs_2019_clean[acs_2019_clean$NAME == "McDuffie County, Georgia",]$GEO_ID;
 ```
 
 11[\*]{style="color: red;"}. The geographical ID of the county is
@@ -875,7 +889,8 @@ verb.
 
 ```{r q7.11, echo=TRUE, eval=TRUE}
 # code goes here
-
+acs_2019_clean <- acs_2019_clean %>%
+  summarise(NAME, GEO_ID, pct_high_school, pct_const_maintenance_occ, mean_income, county_fips_clean = substr(GEO_ID, 10, 14));
 ```
 
 12[\*]{style="color: red;"}. Now that our covariates data is tidy, we
@@ -886,7 +901,7 @@ object called `elections_2020_covariates`.
 
 ```{r q7.12, echo=TRUE, eval=TRUE}
 # code goes here
-
+elections_2020_covariates <- left_join(elections_2020_clean, acs_2019_clean);
 ```
 
 ## Regression analysis [8 points]
@@ -907,7 +922,10 @@ Create a new object called `elections_2020_reg_trump` for this task.
 
 ```{r q8.1, echo = TRUE, eval = TRUE}
 # code goes here
-
+elections_2020_reg_trump <- elections_2020_covariates %>%
+  filter(candidate == "DONALD J TRUMP") %>%
+  summarize(state_po, county_name, county_fips_clean, pct_votes, pct_high_school, pct_const_maintenance_occ, mean_income) %>%
+  rename(pct_votes_trump = pct_votes);
 ```
 
 **Support time:** If you are not confident that your answers to the
@@ -923,8 +941,8 @@ If you choose to use this option, you can load the
 `elections_2020_reg_trump.RData` file you just downloaded by using the
 `load()` function. Replace `eval = FALSE` by `eval = TRUE`.
 
-```{r q8.support, echo = TRUE, eval = FALSE}
-load("path/elections_2020_reg_trump.RData")
+```{r q8.support, echo = TRUE, eval = TRUE}
+load("./elections_2020_reg_trump.RData")
 # where `path` corresponds to where the elections_2020_reg_trump.RData file is located on your laptop.
 ```
 
@@ -934,7 +952,7 @@ statistics for `mean_income`, `pct_high_school` and
 
 ```{r q8.2, echo = TRUE, eval = TRUE}
 # code goes here
-
+skim(elections_2020_reg_trump, mean_income, pct_high_school, pct_const_maintenance_occ)
 ```
 
 We can see that are some missing values. If you want you can look at
@@ -971,7 +989,12 @@ created dataframe to ensure it looks as expected.
 
 ```{r q8.3, echo = TRUE, eval = TRUE}
 # code goes here
-
+elections_2020_plot_trump <- pivot_longer(
+  data = elections_2020_reg_trump,
+  cols = c("mean_income", "pct_high_school", "pct_const_maintenance_occ"),
+  names_to = "covariate",
+  values_to = "value"
+)
 ```
 
 4\. Produce 3 graphs displaying the relationship between the vote
@@ -985,7 +1008,10 @@ scales of each plot change freely.)
 
 ```{r q8.4, echo = TRUE, eval = TRUE}
 # code goes here
-
+ggplot(
+  data = elections_2020_plot_trump,
+  facet_wrap(align ~ .)
+);
 ```
 
 5\. Add a regression line on these plots using the `geom_smooth` layer
