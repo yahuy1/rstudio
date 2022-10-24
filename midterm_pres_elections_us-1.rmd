@@ -12,6 +12,8 @@ output:
         highlight: textmate
 editor_options: 
   chunk_output_type: console
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include = FALSE, warning = FALSE, message = FALSE}
@@ -26,34 +28,68 @@ knitr::opts_chunk$set(
 
 ## Logistics
 
-* ***DEADLINE***: The midterm is due before our class on 26 of October.
-* You can do this homework in groups of **two at most**.
-* This homework has a total of 20 points. The number of points for each section is clearly indicated in the section and/or subsection headings.
-* You need to hand in this `.Rmd` file  on Moodle and send me the `.html` file - that is produced when you click on the "Knit" button - through Slack. If you are having issues knitting your file do get in touch (and **knit regularly to make sure everything is working properly**).
-* We left code blocks in this `.Rmd` file for you to fill out. Just put your code within the marked region, and click the *Knit* button in RStudio, just above this script, to see the generated HTML output. Knit it now, before you add any code to see how nice the output looks like.
-* Whenever we give you a chunk of code with code already written, you need to replace `eval = FALSE` by `eval = TRUE` in the chunk "header". This will make sure that the chunk is 'evaluated' (i.e., that the code runs) when you knit the document. 
-* FYI a code block looks like this:
+-   ***DEADLINE***: The midterm is due before our class on 26 of
+    October.
+-   You can do this homework in groups of **two at most**.
+-   This homework has a total of 20 points. The number of points for
+    each section is clearly indicated in the section and/or subsection
+    headings.
+-   You need to hand in this `.Rmd` file on Moodle and send me the
+    `.html` file - that is produced when you click on the "Knit"
+    button - through Slack. If you are having issues knitting your file
+    do get in touch (and **knit regularly to make sure everything is
+    working properly**).
+-   We left code blocks in this `.Rmd` file for you to fill out. Just
+    put your code within the marked region, and click the *Knit* button
+    in RStudio, just above this script, to see the generated HTML
+    output. Knit it now, before you add any code to see how nice the
+    output looks like.
+-   Whenever we give you a chunk of code with code already written, you
+    need to replace `eval = FALSE` by `eval = TRUE` in the chunk
+    "header". This will make sure that the chunk is 'evaluated' (i.e.,
+    that the code runs) when you knit the document.
+-   FYI a code block looks like this:
+
 ```{r qx.x, echo = TRUE, eval = TRUE}
 # code goes here
 ```
-* **Do NOT delete the \`\`\`{r} and \`\`\`**; they separate the code chunk from text.
-* You can find a nice intro to Rmarkdown (`.Rmd`) [here](https://rmarkdown.rstudio.com/authoring_quick_tour.html).
-* Questions marked with a red star (<span style="color: red;">*</span>) are the ones we will build on progressively to clean the data until it is ready for the regression analysis. Other questions are side quests, which you don't need to answer to get to the regressions.
-* We have added a link to a clean dataset just before the regression analysis part. If there are necessary questions you have not managed to do, you can start from this clean data instead of using your own.
+
+-   **Do NOT delete the \`\`\`{r} and \`\`\`**; they separate the code
+    chunk from text.
+-   You can find a nice intro to Rmarkdown (`.Rmd`)
+    [here](https://rmarkdown.rstudio.com/authoring_quick_tour.html).
+-   Questions marked with a red star ([\*]{style="color: red;"}) are the
+    ones we will build on progressively to clean the data until it is
+    ready for the regression analysis. Other questions are side quests,
+    which you don't need to answer to get to the regressions.
+-   We have added a link to a clean dataset just before the regression
+    analysis part. If there are necessary questions you have not managed
+    to do, you can start from this clean data instead of using your own.
 
 # 2020 US Presidential Elections - Analysis of the Results
 
-This midterm project consists in one long analysis of data from the 2020 Presidential elections in the United States.
+This midterm project consists in one long analysis of data from the 2020
+Presidential elections in the United States.
 
-You will be asked to download the data from its original source, just like you would if you were to undertake this task by yourself. You will use everything we've learned so far: importing (un-tidy) data; summarizing, visualizing and tidying it; running regressions for different variables; and thinking about whether these associations can be interpreted causally. In the process, you will also learn 2 useful operations: merging 2 (or more) datasets together, and "reshaping" data from wide to long format. Don't worry we will work you through how to do all of this.
+You will be asked to download the data from its original source, just
+like you would if you were to undertake this task by yourself. You will
+use everything we've learned so far: importing (un-tidy) data;
+summarizing, visualizing and tidying it; running regressions for
+different variables; and thinking about whether these associations can
+be interpreted causally. In the process, you will also learn 2 useful
+operations: merging 2 (or more) datasets together, and "reshaping" data
+from wide to long format. Don't worry we will work you through how to do
+all of this.
 
-We hope you find this project interesting and useful. Now let's get going!
+We hope you find this project interesting and useful. Now let's get
+going!
 
 **Please add your names here**
 
 ## Loading packages
 
-It's good practice to load all the packages you will need in the same place.
+It's good practice to load all the packages you will need in the same
+place.
 
 ```{r load packages}
 # Load all the packages you need here
@@ -72,15 +108,23 @@ library(rmapshaper)
 
 ## Loading the Data [0.5 points]
 
-Download the data from November 2020 US presidential elections from here:
+Download the data from November 2020 US presidential elections from
+here:
 
-> https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VOQCHQ#
+> <https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VOQCHQ#>
 
-Scroll down, click on the download icon next to the second file (countypres_2000-2020.tab), and select "Comma Separated Values (Original File Format)".
+Scroll down, click on the download icon next to the second file
+(countypres_2000-2020.tab), and select "Comma Separated Values (Original
+File Format)".
 
-This is straight from the MIT Election Data + Science lab, which collects and shares election data from the United States. This dataset contains election results aggregated at the county level. [Counties](https://en.wikipedia.org/wiki/County_(United_States)) are small geographic units in the United States.
+This is straight from the MIT Election Data + Science lab, which
+collects and shares election data from the United States. This dataset
+contains election results aggregated at the county level.
+[Counties](https://en.wikipedia.org/wiki/County_(United_States)) are
+small geographic units in the United States.
 
-1<span style="color: red;">*</span>\. Load the file you downloaded into RStudio in an object called `elections`. You can use the `read.csv` function.
+1[\*]{style="color: red;"}. Load the file you downloaded into RStudio in
+an object called `elections`. You can use the `read.csv` function.
 
 ```{r q1.1, echo = TRUE, eval = TRUE}
 elections <- read.csv(file = './countypres_2000-2020.csv');
@@ -94,7 +138,9 @@ elections <- read.csv(file = './countypres_2000-2020.csv');
 head(elections, n = 6L);
 ```
 
-2\. What years are included in our data? What's inside the enigmatic "mode" variable? Tabulate the variables `year` and `mode` separately to find out.
+2\. What years are included in our data? What's inside the enigmatic
+"mode" variable? Tabulate the variables `year` and `mode` separately to
+find out.
 
 ```{r q2.2, echo = TRUE, eval = TRUE}
 year <- elections[, c("year")];
@@ -103,11 +149,15 @@ year <- unique(year, incomparables = FALSE);
 mode <- unique(mode, incomparables = FALSE);
 ```
 
-**Year 2000, 2004, 2008, 2012, 2016, 2020 are included. the "mode" variable seems indicate the types of vote counted in each row.**
+**Year 2000, 2004, 2008, 2012, 2016, 2020 are included. the "mode"
+variable seems indicate the types of vote counted in each row.**
 
-3\. What is the unit of observation? In other words, what does each row correspond to?
+3\. What is the unit of observation? In other words, what does each row
+correspond to?
 
-**Each row represents the total number of a specific type of votes that one US President candidate receive in a specific combination of county + state + year**
+**Each row represents the total number of a specific type of votes that
+one US President candidate receive in a specific combination of county +
+state + year**
 
 4\. How many variables are there?
 
@@ -127,13 +177,19 @@ nrow(elections);
 
 ## Filtering the data and exploring further [1 points]
 
-1<span style="color: red;">*</span>\. This data contains the results of all presidential elections from 2000 to 2020. We only want to analyse the 2020 results. Use the `filter` function to keep only the observations that concern the 2020 election. Create a new object `elections_2020` for this task.
+1[\*]{style="color: red;"}. This data contains the results of all
+presidential elections from 2000 to 2020. We only want to analyse the
+2020 results. Use the `filter` function to keep only the observations
+that concern the 2020 election. Create a new object `elections_2020` for
+this task.
 
 ```{r q3.1, echo = TRUE, eval = TRUE}
 elections_2020 <- filter(elections, year == 2020);
 ```
 
-2\. Our main variable of interest is `candidatevotes`. In how many counties did a candidate get zero votes? How many different candidates were concerned?
+2\. Our main variable of interest is `candidatevotes`. In how many
+counties did a candidate get zero votes? How many different candidates
+were concerned?
 
 ```{r q3.2, echo = TRUE, eval = TRUE}
 zero_votes <- filter(elections_2020, candidatevotes == 0);
@@ -146,20 +202,40 @@ zero_votes_candidates;
 
 ```
 
-**There are 549 counties where a candidate got 0 votes. There are 3 named candidate that got 0 votes in at least 1 county: JO JORGENSEN, JOSEPH R BIDEN JR, and DONALD J TRUMP. The other candidates concerned were unnamed**
+**There are 549 counties where a candidate got 0 votes. There are 3
+named candidate that got 0 votes in at least 1 county: JO JORGENSEN,
+JOSEPH R BIDEN JR, and DONALD J TRUMP. The other candidates concerned
+were unnamed**
 
-3\. We saw previously that there were different modes of voting recorded in the data, and that one category is "Total". This could be worrying: are we counting ballots twice? Could a ballot appear both in the "in person" and "total" categories? Cross-tabulate the `mode` variable with `state`, to understand whether the modes of voting are the same in all States. (Use the `table` function)
+3\. We saw previously that there were different modes of voting recorded
+in the data, and that one category is "Total". This could be worrying:
+are we counting ballots twice? Could a ballot appear both in the "in
+person" and "total" categories? Cross-tabulate the `mode` variable with
+`state`, to understand whether the modes of voting are the same in all
+States. (Use the `table` function)
 
 ```{r q3.4, echo = TRUE, eval = TRUE}
 mode_state <- table(elections_2020$mode, elections_2020$state);
 mode_state;
 ```
 
-As you can see, in some States the `mode` variable takes exclusively the value "TOTAL" (in Alabama for instance). In those States, we know the total number of votes obtained by candidates in each county. In other States, we do not have the total number of votes, but only a number disaggregated by voting method (in Arizona for instance).
+As you can see, in some States the `mode` variable takes exclusively the
+value "TOTAL" (in Alabama for instance). In those States, we know the
+total number of votes obtained by candidates in each county. In other
+States, we do not have the total number of votes, but only a number
+disaggregated by voting method (in Arizona for instance).
 
-All of those situations are fine, since they mean ballots are not counted twice.
+All of those situations are fine, since they mean ballots are not
+counted twice.
 
-However there is one worrying case: Utah. In this State, we observe both the total number of votes, and the number of votes by mail, election day voting, and early voting. By looking more closely at the data, you can see that in the Salt Lake county (code 49035), we have the number of votes received early; on election day; and by mail. For all other counties, the ballot count for these voting modes is zero, and we only observe the "total" ballot count. If you wanted to be convinced more formally that this is true, you could run the following script:
+However there is one worrying case: Utah. In this State, we observe both
+the total number of votes, and the number of votes by mail, election day
+voting, and early voting. By looking more closely at the data, you can
+see that in the Salt Lake county (code 49035), we have the number of
+votes received early; on election day; and by mail. For all other
+counties, the ballot count for these voting modes is zero, and we only
+observe the "total" ballot count. If you wanted to be convinced more
+formally that this is true, you could run the following script:
 
 ```{r q3.5, echo = TRUE, eval = FALSE}
 elections_2020 %>% 
@@ -174,121 +250,235 @@ elections_2020 %>%
 #You can see that in no county do we observe a ballot both in "total" and in another category!
 ```
 
-So it holds true that we never count a ballot twice: in every county, either we count it in the "total" category, or we count it in one of the categories associated to specific voting method. This is good news!
+So it holds true that we never count a ballot twice: in every county,
+either we count it in the "total" category, or we count it in one of the
+categories associated to specific voting method. This is good news!
 
 ## Checking quality of the data [2 points]
 
-1\. In States like Arizona where we don't have the total number of ballots, it is not clear that the voting modes for which we have data cover all voting methods available.
+1\. In States like Arizona where we don't have the total number of
+ballots, it is not clear that the voting modes for which we have data
+cover all voting methods available.
 
-For instance, in Kentucky we only have the number of ballots cast on election day. A quick search online shows that early voting is possible in this State, although it is heavily restricted. It is hence very likely that some ballots are missing in our data.
+For instance, in Kentucky we only have the number of ballots cast on
+election day. A quick search online shows that early voting is possible
+in this State, although it is heavily restricted. It is hence very
+likely that some ballots are missing in our data.
 
-Now that we noticed this feature of the data, we want to check how big of an issue this is: how many votes are not counted in our data? Can we still reasonably use it, or is its quality too bad?
+Now that we noticed this feature of the data, we want to check how big
+of an issue this is: how many votes are not counted in our data? Can we
+still reasonably use it, or is its quality too bad?
 
-To answer this question, we will compare the total number of votes by State in our dataset to the official number provided by the Federal Government.
+To answer this question, we will compare the total number of votes by
+State in our dataset to the official number provided by the Federal
+Government.
 
-Create a new object called `elections_2020_state_totals`, with two variables: `state_po` and `sum_votes_state`: the sum of `candidatevotes` by State. Hint: you should group your data by `state_po`, and then use `summarise`. You should also disregard missing values when you compute the sum of `candidatevotes`: find out the argument of the `sum` function which lets you do that.
+Create a new object called `elections_2020_state_totals`, with two
+variables: `state_po` and `sum_votes_state`: the sum of `candidatevotes`
+by State. Hint: you should group your data by `state_po`, and then use
+`summarise`. You should also disregard missing values when you compute
+the sum of `candidatevotes`: find out the argument of the `sum` function
+which lets you do that.
 
- 
 ```{r q4.1, echo = TRUE, eval = TRUE}
 # code goes here
-elections_2020_state_totals.
+elections_2020_state_totals <- 
+  elections_2020 %>% 
+    group_by(state_po) %>%
+    summarise(sum_votes_state = sum(candidatevotes, na.rm = TRUE), .groups = "drop");
+elections_2020_state_totals <- unique(elections_2020_state_totals);
 ```
 
-2\. The official election data in the US is provided by the Federal Election Commission, in [this document](https://www.fec.gov/resources/cms-content/documents/2020presgeresults.pdf). Notice that it is in pdf format. We already extracted it into an excel file for you.
+2\. The official election data in the US is provided by the Federal
+Election Commission, in [this
+document](https://www.fec.gov/resources/cms-content/documents/2020presgeresults.pdf).
+Notice that it is in pdf format. We already extracted it into an excel
+file for you.
 
-> Download the file [here](https://www.dropbox.com/s/nnzu2i0xmpovqt0/state_votes.xlsx?dl=1)
+> Download the file
+> [here](https://www.dropbox.com/s/nnzu2i0xmpovqt0/state_votes.xlsx?dl=1)
 
-Import it into a new object named `official_state_votes`, using the `read_excel` function from the `readxl` package.
+Import it into a new object named `official_state_votes`, using the
+`read_excel` function from the `readxl` package.
 
 ```{r q4.2, echo = TRUE, eval = TRUE}
 # code goes here
-
+official_state_votes <- read_excel('./state_votes.xlsx');
 ```
 
-3\. Both your `elections_2020_state_totals` and `official_state_votes` should have 51 observations, one per State in the US + Washington DC. But now the official number of votes and the one from our dataset are in two different R objects. You could compare the numbers manually, but this would be a lot of work. Instead, we want to merge them into a single object.
+3\. Both your `elections_2020_state_totals` and `official_state_votes`
+should have 51 observations, one per State in the US + Washington DC.
+But now the official number of votes and the one from our dataset are in
+two different R objects. You could compare the numbers manually, but
+this would be a lot of work. Instead, we want to merge them into a
+single object.
 
-We will do this using the `left_join()` function from the `tidyverse` package.
+We will do this using the `left_join()` function from the `tidyverse`
+package.
 
-This is how `left_join()` works: `left_join(x,y)` will return all rows from `x` (very important!) and all columns from `x` and `y`. Rows in `x` with no match in `y` will have `NA` values in the new columns. Rows in `y` with no match in `x` will be discarded.
+This is how `left_join()` works: `left_join(x,y)` will return all rows
+from `x` (very important!) and all columns from `x` and `y`. Rows in `x`
+with no match in `y` will have `NA` values in the new columns. Rows in
+`y` with no match in `x` will be discarded.
 
-The following cheatsheet might help you visualise the way the function works: https://github.com/rstudio/cheatsheets/blob/master/data-transformation.pdf. You can also find more details [here](https://dplyr.tidyverse.org/reference/mutate-joins.html).
+The following cheatsheet might help you visualise the way the function
+works:
+<https://github.com/rstudio/cheatsheets/blob/master/data-transformation.pdf>.
+You can also find more details
+[here](https://dplyr.tidyverse.org/reference/mutate-joins.html).
 
-If nothing is specified, `left_join` will automatically detect the variables which have the same name in both datasets and use them to join the data. If your variables have different names in the datasets, you can specify `left_join(x,y, by=c("var1x" = "var1y", "var2x" = "var2y"))`. This will match variable `var1x` in `x` to `var1y` in `y` and `var2x` in `x` to `var2y` in `y`. (You can keep going, and join on more than two variables!)
+If nothing is specified, `left_join` will automatically detect the
+variables which have the same name in both datasets and use them to join
+the data. If your variables have different names in the datasets, you
+can specify
+`left_join(x,y, by=c("var1x" = "var1y", "var2x" = "var2y"))`. This will
+match variable `var1x` in `x` to `var1y` in `y` and `var2x` in `x` to
+`var2y` in `y`. (You can keep going, and join on more than two
+variables!)
 
-Create a new object called `elections_2020_state_comparison`, which is the `left_join` of `elections_2020_state_totals` (1st argument) and `official_state_votes` (2nd argument). Here, our identifying variables have different names, so we need to add the argument `by=c("state_po" = "state_short")`
+Create a new object called `elections_2020_state_comparison`, which is
+the `left_join` of `elections_2020_state_totals` (1st argument) and
+`official_state_votes` (2nd argument). Here, our identifying variables
+have different names, so we need to add the argument
+`by=c("state_po" = "state_short")`
 
 ```{r q4.3, echo = TRUE, eval = TRUE}
 # code goes here
-
+elections_2020_state_comparison <- left_join(elections_2020_state_totals, official_state_votes, by = c("state_po" = "state_short"));
 ```
 
 Congratulations, you have merged your first datasets! Easy right? :)
 
-4\. Compute the percentage difference between the official number of votes, and the sum of votes in our data by State: `(official votes - sum votes)/official votes*100`. What are the min, max and mean of this percentage difference?
+4\. Compute the percentage difference between the official number of
+votes, and the sum of votes in our data by State:
+`(official votes - sum votes)/official votes*100`. What are the min, max
+and mean of this percentage difference?
 
 ```{r q4.4, echo = TRUE, eval = TRUE}
 # code goes here
-
+percentageDifference <- (elections_2020_state_comparison$official_total_votes - elections_2020_state_comparison$sum_votes_state) / elections_2020_state_comparison$official_total_votes * 100;
+min(percentageDifference);
+max(percentageDifference);
+mean(percentageDifference);
 ```
 
-**Answer goes here.**
+**The min is -0.925%, the max is 0.545%, the mean is -0.044%**
 
-If our election data contained the official number of votes per State, the difference would always be zero. Clearly, this is not the case: in some States our data has too few votes, in others it has too many. However, the difference is always very very small and should not dramatically change the final results obtained by each candidate.
+If our election data contained the official number of votes per State,
+the difference would always be zero. Clearly, this is not the case: in
+some States our data has too few votes, in others it has too many.
+However, the difference is always very very small and should not
+dramatically change the final results obtained by each candidate.
 
-Still, the discrepancy is not easy to explain: the MIT lab collects official results from all the States and puts them together into a national file. It is not clear where the difference is coming from: maybe there was human error in data collection, maybe the results were updated in some States after a recount... 
+Still, the discrepancy is not easy to explain: the MIT lab collects
+official results from all the States and puts them together into a
+national file. It is not clear where the difference is coming from:
+maybe there was human error in data collection, maybe the results were
+updated in some States after a recount...
 
-Since the United States government itself does not provide official county-level results for the entire country, the only alternative to using the MIT data would be to start from State level official results. However, this would be a lot of work as we would have to find all the files, deal with format issues (many data files are still provided in pdf, for instance [in Kentucky](https://elect.ky.gov/results/2020-2029/Documents/2020%20General%20Election%20Results.pdf)) and clean them all. It would be time consuming, and we would likely make more errors than the MIT lab!
+Since the United States government itself does not provide official
+county-level results for the entire country, the only alternative to
+using the MIT data would be to start from State level official results.
+However, this would be a lot of work as we would have to find all the
+files, deal with format issues (many data files are still provided in
+pdf, for instance [in
+Kentucky](https://elect.ky.gov/results/2020-2029/Documents/2020%20General%20Election%20Results.pdf))
+and clean them all. It would be time consuming, and we would likely make
+more errors than the MIT lab!
 
 ## Some more tidying [2.5 points]
 
-1\. Now that we have decided that our data was good enough, we still need to tidy it before we can use it. Make sure that the candidate name is always written with the same format by tabulating the `candidate` variable.
+1\. Now that we have decided that our data was good enough, we still
+need to tidy it before we can use it. Make sure that the candidate name
+is always written with the same format by tabulating the `candidate`
+variable.
 
 ```{r q5.1, echo = TRUE, eval = TRUE}
 # code goes here
-
+table(elections_2020$candidate);
 ```
 
-2<span style="color: red;">*</span>\. Remember that we noticed earlier there were missing values in the `candidatevotes` and `totalvotes` variables.
+2[\*]{style="color: red;"}. Remember that we noticed earlier there were
+missing values in the `candidatevotes` and `totalvotes` variables.
 
-Run the following script to fix the issue (replace `eval = FALSE` by `eval = TRUE` below, so that the code is also run when you knit). This chunk of code:
+Run the following script to fix the issue (replace `eval = FALSE` by
+`eval = TRUE` below, so that the code is also run when you knit). This
+chunk of code:
 
-* replaces `candidate_votes` by zero when it is missing
-* replaces `total_votes_county` by the sum of votes in the county when it is missing.
+-   replaces `candidate_votes` by zero when it is missing
+-   replaces `total_votes_county` by the sum of votes in the county when
+    it is missing.
 
 Note that we create a new object, `elections_2020_clean`.
 
-The `ifelse` function works in the following way: `ifelse(test, value if test==TRUE, value if test==FALSE)`. For instance in the third line below, for each observation, if `candidatevotes` is missing then it is replaced by 0, otherwise it is not changed. 
+The `ifelse` function works in the following way:
+`ifelse(test, value if test==TRUE, value if test==FALSE)`. For instance
+in the third line below, for each observation, if `candidatevotes` is
+missing then it is replaced by 0, otherwise it is not changed.
 
-```{r q5.2, echo = TRUE, eval = FALSE}
+```{r q5.2, echo = TRUE, eval = TRUE}
 elections_2020_clean <- elections_2020 %>%
   group_by(county_fips) %>%
   mutate(candidatevotes = ifelse(is.na(candidatevotes), 0, candidatevotes),
          totalvotes = ifelse(is.na(totalvotes), sum(candidatevotes), totalvotes))
 ```
 
-3<span style="color: red;">*</span>\. Clean some more the `elections_2020_clean` object by:
+3[\*]{style="color: red;"}. Clean some more the `elections_2020_clean`
+object by:
 
-* Summarising the data so that the unit of observation is a candidate in a county. To do this, you need to sum the number of votes obtained for each candidate in each county, across all modes of voting.
-Note: in order to keep all the variables, you will need to use the following command `group_by(state, state_po, county_name, county_fips, totalvotes, candidate, party)`. If we only grouped by `county_fips, candidate`, we would "lose" all the other "extra" variables that give us information about the county (its name, its state, the number of votes, ...). If this is not clear to you, simply run the code twice, once grouping by all the variables, and once with `group_by(county_fips, candidate)`, and see what happens!
+-   Summarising the data so that the unit of observation is a candidate
+    in a county. To do this, you need to sum the number of votes
+    obtained for each candidate in each county, across all modes of
+    voting. Note: in order to keep all the variables, you will need to
+    use the following command
+    `group_by(state, state_po, county_name, county_fips, totalvotes, candidate, party)`.
+    If we only grouped by `county_fips, candidate`, we would "lose" all
+    the other "extra" variables that give us information about the
+    county (its name, its state, the number of votes, ...). If this is
+    not clear to you, simply run the code twice, once grouping by all
+    the variables, and once with `group_by(county_fips, candidate)`, and
+    see what happens!
 
-* Creating a variable `pct_votes` which is equal to the percentage of votes obtained by a candidate in a county: (number of votes obtained by a candidate / total number of votes in county)*100.
+-   Creating a variable `pct_votes` which is equal to the percentage of
+    votes obtained by a candidate in a county: (number of votes obtained
+    by a candidate / total number of votes in county)\*100.
 
-* Grouping the data by county (`county_fips`), and then use a combination of `rank()` and `desc()` commands to compute the ranks of each candidate within each county. You should create a variable called `candidate_rank` which takes the value 1 for the candidate who received the most vote in the county, 2 for the candidate who received the second highest number of votes etc.
+-   Grouping the data by county (`county_fips`), and then use a
+    combination of `rank()` and `desc()` commands to compute the ranks
+    of each candidate within each county. You should create a variable
+    called `candidate_rank` which takes the value 1 for the candidate
+    who received the most vote in the county, 2 for the candidate who
+    received the second highest number of votes etc.
 
-* Once you've ensured your code is correct, "ungroup" the data by passing your object into the `ungroup()` function or by piping it. This function does what it says: it removes grouping. This means that it cancels the effect of your last `group_by`, and ensures that the next functions you use will not be applied by group.
+-   Once you've ensured your code is correct, "ungroup" the data by
+    passing your object into the `ungroup()` function or by piping it.
+    This function does what it says: it removes grouping. This means
+    that it cancels the effect of your last `group_by`, and ensures that
+    the next functions you use will not be applied by group.
 
-You can pipe all these commands together if you wish or proceed in several steps.
+You can pipe all these commands together if you wish or proceed in
+several steps.
 
 ```{r q5.3, echo = TRUE, eval = TRUE}
 # code goes here
+elections_2020_clean <- elections_2020_clean %>%
+  group_by(state, state_po, county_name, county_fips, totalvotes, candidate, party) %>%
+  summarise(candidatevotes = sum(candidatevotes), .groups = "drop");
 
+ elections_2020_clean <- elections_2020_clean %>%
+   group_by(county_fips) %>%
+   summarise(candidate = candidate, party = party, state = state, state_po = state_po, county_name = county_name, candidatevotes = candidatevotes, totalvotes = totalvotes, pct_votes = (candidatevotes / totalvotes) * 100, candidate_rank = rank(desc(candidatevotes)), .groups = "drop") %>%
+   ungroup();
 ```
 
-4\. Check that your variable `pct_votes` is actually a percentage (that it is comprised within 0 and 100). This is a safety check to make sure that there is no inconsistency in the data.
+4\. Check that your variable `pct_votes` is actually a percentage (that
+it is comprised within 0 and 100). This is a safety check to make sure
+that there is no inconsistency in the data.
 
 ```{r q5.4, echo = TRUE, eval = TRUE}
 # code goes here
-
+min(elections_2020_clean$pct_votes) >= 0;
+max(elections_2020_clean$pct_votes) <= 100;
 ```
 
 ## Maps [3 points]
@@ -297,14 +487,23 @@ Election data are probably better visualized using maps.
 
 In this section we will produce two maps displaying:
 
-1. Joe Biden and Donald Trump's vote percentages in each county,
-1. The leading candidate in each county.
+1.  Joe Biden and Donald Trump's vote percentages in each county,
+2.  The leading candidate in each county.
 
-To produce the maps you will need to install and load the `sf`, `tmap` and `rmapshaper` packages.
+To produce the maps you will need to install and load the `sf`, `tmap`
+and `rmapshaper` packages.
 
-Maps are tricky and very complicated objects. But to boil it down to the essential ingredients, you need a "shapefile" which is basically a file that contains the map onto which data will be plotted.
+Maps are tricky and very complicated objects. But to boil it down to the
+essential ingredients, you need a "shapefile" which is basically a file
+that contains the map onto which data will be plotted.
 
-This file is provided by the US census website [here](https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_500k.zip). However it is somewhat heavy, so to make your life easier, we have simplified it for you using the following commands. **Do NOT** touch nor run this chunk, and **do NOT** replace `eval = FALSE` by `eval = TRUE`. We've left it so you can see how we created the simplified shapefile you will be loading in the next question.
+This file is provided by the US census website
+[here](https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_500k.zip).
+However it is somewhat heavy, so to make your life easier, we have
+simplified it for you using the following commands. **Do NOT** touch nor
+run this chunk, and **do NOT** replace `eval = FALSE` by `eval = TRUE`.
+We've left it so you can see how we created the simplified shapefile you
+will be loading in the next question.
 
 ```{r q6.0 simplifying code, echo = TRUE, eval = FALSE}
 county_shfl_full <- read_sf("path/cb_2018_us_county_500k/cb_2018_us_county_500k.shp")
@@ -314,49 +513,79 @@ county_shfl <- st_simplify(county_shfl_full, preserveTopology = FALSE, dToleranc
 save(county_shfl, file="path/county_shfl.RData") #saving the object
 ```
 
-You can download the resulting R object from this link:
-> https://www.dropbox.com/s/m8zq5e38imp2he1/county_shfl.RData?dl=1
+You can download the resulting R object from this link: \>
+<https://www.dropbox.com/s/m8zq5e38imp2he1/county_shfl.RData?dl=1>
 
-1\. Let's load the `county_shfl.RData` file by using the `load()` function. Replace `eval = FALSE` by `eval = TRUE`.
+1\. Let's load the `county_shfl.RData` file by using the `load()`
+function. Replace `eval = FALSE` by `eval = TRUE`.
 
-```{r q6.1, echo = TRUE, eval = FALSE}
-load(" path/county_shfl.RData")
+```{r q6.1, echo = TRUE, eval = TRUE}
+load("./county_shfl.RData")
 # where `path` corresponds to where the county_shfl.RData file is located on your laptop.
 ```
 
 You should now have an object called `county_shfl` in your environment
 
-2\. FIPS codes are numbers which uniquely identify geographic areas in the US. Working with FIPS codes is always advisable when identifying areas, as names can be duplicates: there is an Aidar county in Kentucky and another one in Iowa.
+2\. FIPS codes are numbers which uniquely identify geographic areas in
+the US. Working with FIPS codes is always advisable when identifying
+areas, as names can be duplicates: there is an Aidar county in Kentucky
+and another one in Iowa.
 
-What is the county FIPS code of the "MCDUFFIE" county in the `elections_2020_clean` data.frame? What are the State FIPS (`STATEFP`), county FIPS (`COUNTYFP`) and `GEOID` of the same county in the `county_shfl` data? Hint: in `county_shfl` the county's name is written "McDuffie" and the variable containing county names is `NAME`.
+What is the county FIPS code of the "MCDUFFIE" county in the
+`elections_2020_clean` data.frame? What are the State FIPS (`STATEFP`),
+county FIPS (`COUNTYFP`) and `GEOID` of the same county in the
+`county_shfl` data? Hint: in `county_shfl` the county's name is written
+"McDuffie" and the variable containing county names is `NAME`.
 
 ```{r q6.2, echo = TRUE, eval = TRUE}
 # code goes here
-
+elections_2020_clean[elections_2020_clean$county_name == "MCDUFFIE",];
+county_shfl[county_shfl$NAME == "McDuffie",];
 ```
 
-**Answer goes here.**
+**The county FIPS if McDuffie in elections_2020_clean is 13189. In
+county_shfl, the State FIPS is 13, County FIPS is 189, and the GEOID is
+13189 for McDuffie**
 
-3\. You might have noticed that the `county_fips` variable in our `elections_2020_clean` is actually made of the State FIPS code, followed by the county code.
+3\. You might have noticed that the `county_fips` variable in our
+`elections_2020_clean` is actually made of the State FIPS code, followed
+by the county code.
 
-In `county_shfl`, we have a variable for the State FIPS code and a separate one for the county code. The variable containing the same code as in `elections_2020_clean` is actually called `GEOID`. This type of thing is exactly why you always need to look inside your data: it would not have been obvious from the variable names.
+In `county_shfl`, we have a variable for the State FIPS code and a
+separate one for the county code. The variable containing the same code
+as in `elections_2020_clean` is actually called `GEOID`. This type of
+thing is exactly why you always need to look inside your data: it would
+not have been obvious from the variable names.
 
-What is the type of `county_fips` in the `elections_2020_clean` data? What is the type of `GEOID` in `county_shfl`? Hint: use the `typeof` function.
+What is the type of `county_fips` in the `elections_2020_clean` data?
+What is the type of `GEOID` in `county_shfl`? Hint: use the `typeof`
+function.
 
 ```{r q6.3, echo = TRUE, eval = TRUE}
 # code goes here
-
+typeof(elections_2020_clean$county_fips);
+typeof(county_shfl$GEOID);
 ```
 
-**Answer goes here.**
+**The type of "county_fips" is integer while the type of "GEOID" is
+character**
 
-It is not the same! In order to merge the two datasets, we want `county_fips` to have the same type as in `GEOID` and be a character string instead.
+It is not the same! In order to merge the two datasets, we want
+`county_fips` to have the same type as in `GEOID` and be a character
+string instead.
 
-Furthermore, because it is stored as a numeric value there is no leading zero (the FIPS code "01001" is stored as 1001).
+Furthermore, because it is stored as a numeric value there is no leading
+zero (the FIPS code "01001" is stored as 1001).
 
-The following script fixes this, and creates a new variable called `county_fips_clean`. Run the code and change `eval = FALSE` to `eval = TRUE` to make sure the code runs when you knit your document.
+The following script fixes this, and creates a new variable called
+`county_fips_clean`. Run the code and change `eval = FALSE` to
+`eval = TRUE` to make sure the code runs when you knit your document.
 
-We start by using the `as.character` function to convert the variable to a character string. Then, we use the `ifelse` function again. What this conditional statement says is: if the number of characters of the variable `county_fips_clean` is equal to 4, then add a "0" in front of this variable; otherwise do nothing.
+We start by using the `as.character` function to convert the variable to
+a character string. Then, we use the `ifelse` function again. What this
+conditional statement says is: if the number of characters of the
+variable `county_fips_clean` is equal to 4, then add a "0" in front of
+this variable; otherwise do nothing.
 
 ```{r q6.3 given, echo = TRUE, eval = FALSE}
 elections_2020_clean <- elections_2020_clean %>% 
@@ -366,37 +595,53 @@ elections_2020_clean <- elections_2020_clean %>%
                             county_fips_clean)) #Add a leading zero when necessary: if there are only four characters to the FIPS code, it means that the leading 0 is missing
 ```
 
-4\. How many different State FIPS codes are there in the `county_shfl` dataset? 
-Hint: You can use a combination of the `length` and `unique` commands to count them. 
+4\. How many different State FIPS codes are there in the `county_shfl`
+dataset? Hint: You can use a combination of the `length` and `unique`
+commands to count them.
 
 ```{r q6.4, echo = TRUE, eval = TRUE}
 # code goes here
-
+length(unique(county_shfl$STATEFP));
 ```
 
-**Answer goes here.**
+**There are 56 different State FIPS codes**
 
-5\. Our shapefile clearly contains the map for more than just the 50 US States + DC. By looking at the existing State codes [here](https://www.nrcs.usda.gov/wps/portal/nrcs/detail/?cid=nrcs143_013696), you can see that codes above 56 correspond to overseas territories.
+5\. Our shapefile clearly contains the map for more than just the 50 US
+States + DC. By looking at the existing State codes
+[here](https://www.nrcs.usda.gov/wps/portal/nrcs/detail/?cid=nrcs143_013696),
+you can see that codes above 56 correspond to overseas territories.
 
-The final map we want to produce should only contain the 50 States + DC: we want to remove overseas territories. We also exclude Alaska and Hawaii for purely aesthetic reasons: including them zooms out the map too much. We could fix this problem by showing Alaska and Hawaii in a corner of the map but this is beyond the scope of the midterm.
+The final map we want to produce should only contain the 50 States + DC:
+we want to remove overseas territories. We also exclude Alaska and
+Hawaii for purely aesthetic reasons: including them zooms out the map
+too much. We could fix this problem by showing Alaska and Hawaii in a
+corner of the map but this is beyond the scope of the midterm.
 
 Filter `county_shfl_clean` to keep only observations such that:
 
-* `STATEFP` is not equal to "02" (Alaska) or "15" (Hawaii)
-* and `as.numeric(STATEFP)` is lower or equal to 56 (note that because State FIPS is stored as a character, we have to convert it to a numeric before evaluating whether it is below 56)
+-   `STATEFP` is not equal to "02" (Alaska) or "15" (Hawaii)
+-   and `as.numeric(STATEFP)` is lower or equal to 56 (note that because
+    State FIPS is stored as a character, we have to convert it to a
+    numeric before evaluating whether it is below 56)
 
 Create a new object called `county_shfl_clean`.
 
 ```{r q6.5 given, echo = TRUE, eval = TRUE}
 # code goes here
-
+county_shfl_clean <- county_shfl %>%
+  filter(STATEFP != "02" & STATEFP != "15" & as.numeric(STATEFP) <= 56);
 ```
 
-Furthermore, some counties' FIPS have changed over the years, and they differ in our two datasets. The following script will fix all these inconsistencies for you. The `case_when` function is similar to `ifelse`. Here it modifies the variable `county_fips_clean`, such that :
+Furthermore, some counties' FIPS have changed over the years, and they
+differ in our two datasets. The following script will fix all these
+inconsistencies for you. The `case_when` function is similar to
+`ifelse`. Here it modifies the variable `county_fips_clean`, such that :
 
-* if `county_fips_clean` was equal to "46113", it now takes the value "46102"
-* if `state_po` is equal to "DC", `county_fips_clean` now takes the value "11001"
-* else `county_fips_clean` keeps the same value.
+-   if `county_fips_clean` was equal to "46113", it now takes the value
+    "46102"
+-   if `state_po` is equal to "DC", `county_fips_clean` now takes the
+    value "11001"
+-   else `county_fips_clean` keeps the same value.
 
 Remember to replace `eval = FALSE` with `eval = TRUE`.
 
@@ -408,21 +653,28 @@ elections_2020_clean <- elections_2020_clean %>%
     TRUE ~ county_fips_clean))
 ```
 
-6\. Use `left_join` to merge `county_shfl_clean` (first argument) and `elections_2020_clean` (second argument).  Create a new object called `elections_2020_map` for this question. 
+6\. Use `left_join` to merge `county_shfl_clean` (first argument) and
+`elections_2020_clean` (second argument). Create a new object called
+`elections_2020_map` for this question.
 
-Here, our identifying variables have different names: `GEOID` in `county_shfl_clean` (first argument) and `county_fips_clean` in  `elections_2020_clean` (second argument). Look at the help file or go back to question 3 of the "Checking quality" section to see how to specify the by argument. 
+Here, our identifying variables have different names: `GEOID` in
+`county_shfl_clean` (first argument) and `county_fips_clean` in
+`elections_2020_clean` (second argument). Look at the help file or go
+back to question 3 of the "Checking quality" section to see how to
+specify the by argument.
 
 ```{r q6.6, echo = TRUE, eval = TRUE}
 # code goes here
-
+elections_2020_map <- left_join(county_shfl_clean, elections_2020_clean, by = c("GEOID" = "county_fips_clean"));
 ```
 
 ### Map 1: Candidates' vote percentage
 
-7\. Create a heat map of Biden and Trump's percentage of the vote by county, using the following code (change `eval = FALSE` to `eval = TRUE` just below so that the html file displays the map):
+7\. Create a heat map of Biden and Trump's percentage of the vote by
+county, using the following code (change `eval = FALSE` to `eval = TRUE`
+just below so that the html file displays the map):
 
-
-```{r q6.7 map1 tmap, echo = TRUE, eval = FALSE}
+```{r q6.7 map1 tmap, echo = TRUE, eval = TRUE}
 tmap_mode("view") # we want an interactive map
 elections_2020_map %>%
              # only keep Trump and Biden
@@ -437,35 +689,67 @@ elections_2020_map %>%
     tm_facets(by = "candidate") # create one map per selected candidate
 ```
 
-Wasn't that easy (well, sort of ;) ) ! And now you have 2 comparable maps of the vote percentages received by Biden and Trump! Hover over the counties with your mouse. The name of the county will show up. If you click on a county you will get the vote percentage received by the candidate. Isn't that cool!
+Wasn't that easy (well, sort of ;) ) ! And now you have 2 comparable
+maps of the vote percentages received by Biden and Trump! Hover over the
+counties with your mouse. The name of the county will show up. If you
+click on a county you will get the vote percentage received by the
+candidate. Isn't that cool!
 
 ### Map 2: Leading candidate
 
-8\.  Create a map displaying the candidate who received the highest percentage of votes in each county. Try to create this map by yourself using the code above (and the comments in it). You don’t need to create any new variables. Don’t hesitate to use Google (or your favorite search engine) to help you out. Don’t forget to change the title of the legend.
+8\. Create a map displaying the candidate who received the highest
+percentage of votes in each county. Try to create this map by yourself
+using the code above (and the comments in it). You don't need to create
+any new variables. Don't hesitate to use Google (or your favorite search
+engine) to help you out. Don't forget to change the title of the legend.
 
-Add the following argument in tm_fill() to have a nice color palette for your map: `palette = c("red","blue")`.
+Add the following argument in tm_fill() to have a nice color palette for
+your map: `palette = c("red","blue")`.
 
 ```{r q6.8 map2, echo = TRUE, eval = TRUE}
 # code goes here
-
+tmap_mode("view") # we want an interactive map
+elections_2020_map %>%
+             # only keep Trump and Biden
+             filter(candidate %in% c("DONALD J TRUMP", "JOSEPH R BIDEN JR")) %>% 
+    tm_shape() +
+    tm_borders(col="white", lwd = 0.3) + # white and thin (line width) borders
+    tm_fill(
+        palette = c("red","blue"),
+        col = "pct_votes",   # variable to be mapped
+        title = "% of votes",   # legend title
+        id = "county_name",   # information to display when mouse hovers over a departement
+        popup.vars = c("Vote %:" = "pct_votes")) + # variable to display in popup window
+    tm_facets(by = "candidate") # create one map per selected candidate
 ```
 
 ## Tidying covariate data [2 points]
 
+A covariate is simply the name we give to variables containing
+characteristics of our unit of interest (here, characteristic of
+counties). A covariate can be of direct interest if it is an independent
+variable in the model. It can also be an extra characteristic we add to
+the regression to avoid the omitted variable bias which we will discuss
+later in the course.
 
-A covariate is simply the name we give to variables containing characteristics of our unit of interest (here, characteristic of counties). A covariate can be of direct interest if it is an independent variable in the model. It can also be an extra characteristic we add to the regression to avoid the omitted variable bias which we will discuss later in the course.
+> Download county-level social data from the American Community Survey
+> (ACS) here:
+> <https://data.census.gov/cedsci/table?q=DP02&g=0100000US%240500000&tid=ACSDP5Y2019.DP02>
 
-> Download county-level social data from the American Community Survey (ACS) here:
-> https://data.census.gov/cedsci/table?q=DP02&g=0100000US%240500000&tid=ACSDP5Y2019.DP02
-
-Click "DOWNLOAD TABLE" and select the year 2019 for "ACS 5-Year Estimates Data Profiles" and download. Unzip the folder once downloaded.
+Click "DOWNLOAD TABLE" and select the year 2019 for "ACS 5-Year
+Estimates Data Profiles" and download. Unzip the folder once downloaded.
 
 > Repeat for ACS economic data:
-> https://data.census.gov/cedsci/table?q=DP03&g=0100000US%240500000&tid=ACSDP5Y2019.DP03
+> <https://data.census.gov/cedsci/table?q=DP03&g=0100000US%240500000&tid=ACSDP5Y2019.DP03>
 
-1<span style="color: red;">*</span>\. Import these csv files (the ones with `data_with_overlays` in their name) into objects called `acs_soc_2019` and `acs_eco_2019` respectively.
+1[\*]{style="color: red;"}. Import these csv files (the ones with
+`data_with_overlays` in their name) into objects called `acs_soc_2019`
+and `acs_eco_2019` respectively.
 
-Note: the automatic name of the csv file when you download it includes the date and time, so the name of your file will be different to mine! If you work in groups and want the code to run on all your laptops, make sure that your files have the same name.
+Note: the automatic name of the csv file when you download it includes
+the date and time, so the name of your file will be different to mine!
+If you work in groups and want the code to run on all your laptops, make
+sure that your files have the same name.
 
 ```{r q7.1, echo = TRUE, eval = TRUE}
 # code goes here
@@ -481,26 +765,34 @@ Note: the automatic name of the csv file when you download it includes the date 
 
 **Answer goes here.**
 
-3<span style="color: red;">*</span>\. That's a lot! We need to keep only the variables we are interested in, and tidy the data a little. For each acs data frame:
+3[\*]{style="color: red;"}. That's a lot! We need to keep only the
+variables we are interested in, and tidy the data a little. For each acs
+data frame:
 
-* Rename the following variables : (`old_name` -> `new_name`)
+-   Rename the following variables : (`old_name` -\> `new_name`)
 
-1. In `acs_soc_2019`: `DP02_0062PE` -> `pct_high_school`
-1. In `acs_eco_2019`: `DP03_0063E` -> `mean_income`
-1. In `acs_eco_2019`: `DP03_0030PE` -> `pct_const_maintenance_occ` 
+1.  In `acs_soc_2019`: `DP02_0062PE` -\> `pct_high_school`
+2.  In `acs_eco_2019`: `DP03_0063E` -\> `mean_income`
+3.  In `acs_eco_2019`: `DP03_0030PE` -\> `pct_const_maintenance_occ`
 
-The new name tells you what the variable actually contains. `pct_high_school` is the share of people in the county who only have a high school degree (no further education). `pct_const_maintenance_occ` is the share of civilians aged 16 and above who work in the "Natural resources, construction and maintenance" occupation.
+The new name tells you what the variable actually contains.
+`pct_high_school` is the share of people in the county who only have a
+high school degree (no further education). `pct_const_maintenance_occ`
+is the share of civilians aged 16 and above who work in the "Natural
+resources, construction and maintenance" occupation.
 
-* Keep only the variables you just renamed, `NAME` and `GEO_ID`
+-   Keep only the variables you just renamed, `NAME` and `GEO_ID`
 
-For this task, create two new objects: `acs_soc_2019_clean` and `acs_eco_2019_clean`.
+For this task, create two new objects: `acs_soc_2019_clean` and
+`acs_eco_2019_clean`.
 
 ```{r q7.3, echo = TRUE, eval = TRUE}
 # code goes here
 
 ```
 
-4\. Display the first five lines of  `acs_soc_2019_clean` and `acs_eco_2019_clean`
+4\. Display the first five lines of `acs_soc_2019_clean` and
+`acs_eco_2019_clean`
 
 ```{r q7.4, echo = TRUE, eval = TRUE}
 # code goes here
@@ -511,14 +803,18 @@ For this task, create two new objects: `acs_soc_2019_clean` and `acs_eco_2019_cl
 
 **Answer goes here.**
 
-6<span style="color: red;">*</span>\. Drop the first row of `acs_soc_2019_clean` and `acs_eco_2019_clean`. Hint: the negative sign should help you.
+6[\*]{style="color: red;"}. Drop the first row of `acs_soc_2019_clean`
+and `acs_eco_2019_clean`. Hint: the negative sign should help you.
 
 ```{r q7.6, echo = TRUE, eval = TRUE}
 # code goes here
 
 ```
 
-7<span style="color: red;">*</span>\. Merge the `acs_soc_2019_clean` and `acs_eco_2019_clean` together using `left_join`. You don't need to specify the `by` argument here, since the common variabes `GEO_ID` and `NAME` should have the same name in both datasets.
+7[\*]{style="color: red;"}. Merge the `acs_soc_2019_clean` and
+`acs_eco_2019_clean` together using `left_join`. You don't need to
+specify the `by` argument here, since the common variabes `GEO_ID` and
+`NAME` should have the same name in both datasets.
 
 Create a new object called `acs_2019_clean`.
 
@@ -527,43 +823,66 @@ Create a new object called `acs_2019_clean`.
 
 ```
 
-
-8\. What is the type of the `pct_const_maintenance_occ`, `mean_income` and `pct_high_school` variables?
+8\. What is the type of the `pct_const_maintenance_occ`, `mean_income`
+and `pct_high_school` variables?
 
 ```{r q7.8, echo=TRUE, eval=TRUE}
 # code goes here
 
 ```
 
-
 **Answer goes here.**
 
-9<span style="color: red;">*</span>\. In the `acs_2019_clean` dataframe, convert the `pct_high_school`, `pct_const_maintenance_occ` and `mean_income` variables to numeric, using the `as.numeric()` function. This function simply converts character strings to numbers: for example `as.numeric("17.9") = 17.9`. Hint: to convert the variable, simply use the `dplyr` verb to create a new variable and give it the same name as the variable you are modifying.
+9[\*]{style="color: red;"}. In the `acs_2019_clean` dataframe, convert
+the `pct_high_school`, `pct_const_maintenance_occ` and `mean_income`
+variables to numeric, using the `as.numeric()` function. This function
+simply converts character strings to numbers: for example
+`as.numeric("17.9") = 17.9`. Hint: to convert the variable, simply use
+the `dplyr` verb to create a new variable and give it the same name as
+the variable you are modifying.
 
-Ignore the warning about NAs being introduced. They are due to observations for which `pct_high_school` was already missing (it was equal to "null")
+Ignore the warning about NAs being introduced. They are due to
+observations for which `pct_high_school` was already missing (it was
+equal to "null")
 
 ```{r q7.9, echo=TRUE, eval=TRUE}
 # code goes here
 
 ```
 
-10\. What is the `GEO_ID` of the county whose `NAME` is "McDuffie County, Georgia" in the `acs_2019_clean` dataframe?
+10\. What is the `GEO_ID` of the county whose `NAME` is "McDuffie
+County, Georgia" in the `acs_2019_clean` dataframe?
 
 ```{r q7.10, echo=TRUE, eval=TRUE}
 # code goes here
 
 ```
 
-11<span style="color: red;">*</span>\. The geographical ID of the county is different to what we had last time! You might have noticed that this time, the 5-digit FIPS code is preceded by a prefix: "0500000US". We want to extract the FIPS code from this geographic identifier.
+11[\*]{style="color: red;"}. The geographical ID of the county is
+different to what we had last time! You might have noticed that this
+time, the 5-digit FIPS code is preceded by a prefix: "0500000US". We
+want to extract the FIPS code from this geographic identifier.
 
-Create a new variable, called `county_fips_clean` which contains only the 5 last characters of the `GEO_ID` variable. Use the `substr()` function. This function extracts a substring from a character string. You need to give it the original string, and the position of the first and last character of the substring. Example: `substr("abcde", 2, 4) = "bcd"`, i.e. you get letters 2 to 4. Here we want to extract characters 10 to 14 of the `GEO_ID` variable. As with `as.numeric` you have to create the variable using the relevant `dplyr` verb.
+Create a new variable, called `county_fips_clean` which contains only
+the 5 last characters of the `GEO_ID` variable. Use the `substr()`
+function. This function extracts a substring from a character string.
+You need to give it the original string, and the position of the first
+and last character of the substring. Example:
+`substr("abcde", 2, 4) = "bcd"`, i.e. you get letters 2 to 4. Here we
+want to extract characters 10 to 14 of the `GEO_ID` variable. As with
+`as.numeric` you have to create the variable using the relevant `dplyr`
+verb.
 
 ```{r q7.11, echo=TRUE, eval=TRUE}
 # code goes here
 
 ```
 
-12<span style="color: red;">*</span>\. Now that our covariates data is tidy, we can finally merge it with the elections data. Merge `elections_2020_clean` and `acs_2019_clean` using `left_join`. Note: `elections_2020_clean` needs to be the first argument). Create a new object called `elections_2020_covariates`.
+12[\*]{style="color: red;"}. Now that our covariates data is tidy, we
+can finally merge it with the elections data. Merge
+`elections_2020_clean` and `acs_2019_clean` using `left_join`. Note:
+`elections_2020_clean` needs to be the first argument). Create a new
+object called `elections_2020_covariates`.
 
 ```{r q7.12, echo=TRUE, eval=TRUE}
 # code goes here
@@ -572,13 +891,17 @@ Create a new variable, called `county_fips_clean` which contains only the 5 last
 
 ## Regression analysis [8 points]
 
-1<span style="color: red;">*</span>\. In the regression analysis, we will only focus on the votes obtained by Donald Trump.
+1[\*]{style="color: red;"}. In the regression analysis, we will only
+focus on the votes obtained by Donald Trump.
 
-* Filter `elections_2020_covariates` to keep only the observations with the votes for Donald Trump.
+-   Filter `elections_2020_covariates` to keep only the observations
+    with the votes for Donald Trump.
 
-* Keep only the following variables: `state_po`, `county_name`, `county_fips_clean`, `pct_votes`, `pct_const_maintenance_occ`, `mean_income`, `pct_high_school`.
+-   Keep only the following variables: `state_po`, `county_name`,
+    `county_fips_clean`, `pct_votes`, `pct_const_maintenance_occ`,
+    `mean_income`, `pct_high_school`.
 
-* Rename `pct_votes` -> `pct_votes_trump`.
+-   Rename `pct_votes` -\> `pct_votes_trump`.
 
 Create a new object called `elections_2020_reg_trump` for this task.
 
@@ -587,75 +910,118 @@ Create a new object called `elections_2020_reg_trump` for this task.
 
 ```
 
+**Support time:** If you are not confident that your answers to the
+necessary red-starred questions are all correct, you can now download a
+pre-cleaned dataset
+[here](https://www.dropbox.com/s/grxvjyjhdd8upas/elections_2020_reg_trump.RData?dl=1).
+This file contains the data you *should* have arrived to after all these
+questions. This means that even if you made mistakes before, you can get
+a fresh start for the regressions and do them correctly. We will not
+penalise you for using this data.
 
-**Support time:** If you are not confident that your answers to the necessary red-starred questions are all correct, you can now download a pre-cleaned dataset [here](https://www.dropbox.com/s/grxvjyjhdd8upas/elections_2020_reg_trump.RData?dl=1). This file contains the data you *should* have arrived to after all these questions. This means that even if you made mistakes before, you can get a fresh start for the regressions and do them correctly. We will not penalise you for using this data.
-
-If you choose to use this option, you can load the `elections_2020_reg_trump.RData` file you just downloaded by using the `load()` function. Replace `eval = FALSE` by `eval = TRUE`.
-
+If you choose to use this option, you can load the
+`elections_2020_reg_trump.RData` file you just downloaded by using the
+`load()` function. Replace `eval = FALSE` by `eval = TRUE`.
 
 ```{r q8.support, echo = TRUE, eval = FALSE}
 load("path/elections_2020_reg_trump.RData")
 # where `path` corresponds to where the elections_2020_reg_trump.RData file is located on your laptop.
 ```
 
-
-
-2\. Use the `skim()` function from the `skimr` package to obtain summary statistics for `mean_income`, `pct_high_school` and `pct_const_maintenance_occ`.
+2\. Use the `skim()` function from the `skimr` package to obtain summary
+statistics for `mean_income`, `pct_high_school` and
+`pct_const_maintenance_occ`.
 
 ```{r q8.2, echo = TRUE, eval = TRUE}
 # code goes here
 
 ```
 
-We can see that are some missing values. If you want you can look at which counties have missing data but otherwise, we'll just ignore them for this midterm.
+We can see that are some missing values. If you want you can look at
+which counties have missing data but otherwise, we'll just ignore them
+for this midterm.
 
-3\. To facilitate plotting we will reshape the data in long format. (The difference between long and wide data is explained in this [article](https://www.statology.org/long-vs-wide-data/).) We are going to use the `pivot_longer()` function from the `tidyverse` package to reshape the data. You can find examples of how the `pivot_longer()` function works by typing `?pivot_longer` in your console. You can also find information and examples about `pivot_longer` and its associated function `pivot_wider` [here](https://tidyr.tidyverse.org/articles/pivot.html)
+3\. To facilitate plotting we will reshape the data in long format. (The
+difference between long and wide data is explained in this
+[article](https://www.statology.org/long-vs-wide-data/).) We are going
+to use the `pivot_longer()` function from the `tidyverse` package to
+reshape the data. You can find examples of how the `pivot_longer()`
+function works by typing `?pivot_longer` in your console. You can also
+find information and examples about `pivot_longer` and its associated
+function `pivot_wider`
+[here](https://tidyr.tidyverse.org/articles/pivot.html)
 
-For our purposes we will use the following 4 arguments in `pivot_longer()`:
+For our purposes we will use the following 4 arguments in
+`pivot_longer()`:
 
-* `data = elections_2020_reg_trump` (notice that if you use the `%>%` pipe you don't need to specify the data argument);
-* `cols = c("mean_income", "pct_high_school", "pct_const_maintenance_occ")`. These are the columns to be reshaped.;
-* `names_to = "covariate"`. This is the name of a new variable to be created, where we will store the name of the covariate;
-* `values_to = "value"` This is the name of a new variable to be created, where we will store the values of the covariates.
+-   `data = elections_2020_reg_trump` (notice that if you use the `%>%`
+    pipe you don't need to specify the data argument);
+-   `cols = c("mean_income", "pct_high_school", "pct_const_maintenance_occ")`.
+    These are the columns to be reshaped.;
+-   `names_to = "covariate"`. This is the name of a new variable to be
+    created, where we will store the name of the covariate;
+-   `values_to = "value"` This is the name of a new variable to be
+    created, where we will store the values of the covariates.
 
-If this is somewhat unclear to you, simply run the code and check how it differs from the previous dataset. This should clear things up.
+If this is somewhat unclear to you, simply run the code and check how it
+differs from the previous dataset. This should clear things up.
 
-Create a new object `elections_2020_plot_trump` for this task. View the created dataframe to ensure it looks as expected.
+Create a new object `elections_2020_plot_trump` for this task. View the
+created dataframe to ensure it looks as expected.
 
 ```{r q8.3, echo = TRUE, eval = TRUE}
 # code goes here
 
 ```
 
-4\. Produce 3 graphs displaying the relationship between the vote percentage for Donald Trump and our 3 covariates. Each graph should be on a different row. Make sure that your graph has a meaningful y-axis label and that the y-axis is between 0 and 100 (use the `scale_y_continuous()` layer for this).
-(Hint: use the `facet_wrap` layer in `ggplot` to make these 3 plots in the same graph. Look at the `facet_wrap` arguments to ensure each graph is on its own row and the scales of each plot change freely.)
+4\. Produce 3 graphs displaying the relationship between the vote
+percentage for Donald Trump and our 3 covariates. Each graph should be
+on a different row. Make sure that your graph has a meaningful y-axis
+label and that the y-axis is between 0 and 100 (use the
+`scale_y_continuous()` layer for this). (Hint: use the `facet_wrap`
+layer in `ggplot` to make these 3 plots in the same graph. Look at the
+`facet_wrap` arguments to ensure each graph is on its own row and the
+scales of each plot change freely.)
 
 ```{r q8.4, echo = TRUE, eval = TRUE}
 # code goes here
 
 ```
 
-5\. Add a regression line on these plots using the `geom_smooth` layer to better see the relationship's sign. Set the argument `method` to `"lm"` (for linear model) and `se` to `FALSE` (so that it does not display a confidence interval around the regression line; we'll discuss this towards the end of the course but you can set the argument to `TRUE` to see what it does).
+5\. Add a regression line on these plots using the `geom_smooth` layer
+to better see the relationship's sign. Set the argument `method` to
+`"lm"` (for linear model) and `se` to `FALSE` (so that it does not
+display a confidence interval around the regression line; we'll discuss
+this towards the end of the course but you can set the argument to
+`TRUE` to see what it does).
 
 ```{r q8.5, echo = TRUE, eval = TRUE}
 # code goes here
 
 ```
 
-6\. From the graphs, is the relationship between the different covariates and Donald Trump's vote share positive or negative? Rather strong or rather weak?
+6\. From the graphs, is the relationship between the different
+covariates and Donald Trump's vote share positive or negative? Rather
+strong or rather weak?
 
-
-7\. Run a simple linear regression of Donald Trump's vote percentage on each of our covariate variables separately (i.e. 3 simple linear regressions). For this question you should use `elections_2020_reg_trump` as the data source.  
-Use the `export_summs()` function from the `jtools` package to see the results from the three regressions side by side.
+7\. Run a simple linear regression of Donald Trump's vote percentage on
+each of our covariate variables separately (i.e. 3 simple linear
+regressions). For this question you should use
+`elections_2020_reg_trump` as the data source.\
+Use the `export_summs()` function from the `jtools` package to see the
+results from the three regressions side by side.
 
 ```{r q8.7, echo = TRUE, eval = TRUE}
 # code goes here
 
 ```
 
-Don't pay attention to the stars next to the coefficients and to the number in parenthesis below the coefficients, we'll get to them later on in the course.
+Don't pay attention to the stars next to the coefficients and to the
+number in parenthesis below the coefficients, we'll get to them later on
+in the course.
 
-8\. What is the interpretation of the coefficients for `mean_income`, `pct_high_school` and `pct_const_maintenance_occ`? Be precise.
+8\. What is the interpretation of the coefficients for `mean_income`,
+`pct_high_school` and `pct_const_maintenance_occ`? Be precise.
 
 **Answer goes here.**
 
@@ -667,17 +1033,25 @@ Don't pay attention to the stars next to the coefficients and to the number in p
 
 **Answer goes here.**
 
-11\. Which variable's variance explains more of the variance in Donald Trump's vote?
+11\. Which variable's variance explains more of the variance in Donald
+Trump's vote?
 
 **Answer goes here.**
 
-12\. Can you interpret these estimates causally? Why not? How else could you interpret the regression on `pct_high_school`? How would you go about trying to assess whether mean income or the share of the Resources/Construction/Maintenance occupation at the county level has a causal impact on the vote percentage for Donald Trump?
+12\. Can you interpret these estimates causally? Why not? How else could
+you interpret the regression on `pct_high_school`? How would you go
+about trying to assess whether mean income or the share of the
+Resources/Construction/Maintenance occupation at the county level has a
+causal impact on the vote percentage for Donald Trump?
 
 **Answer goes here.**
 
 # Well done!
 
-And that's it for this midterm! We hope you had fun, or at least *some* fun, doing it and that you improved your `R` skills. We also hope you got a sense of what "real" data looks like and how it can be tamed by using the great tools that `R` provides.
+And that's it for this midterm! We hope you had fun, or at least *some*
+fun, doing it and that you improved your `R` skills. We also hope you
+got a sense of what "real" data looks like and how it can be tamed by
+using the great tools that `R` provides.
 
-<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
-
+::: {.tocify-extend-page data-unique="tocify-extend-page" style="height: 0;"}
+:::
