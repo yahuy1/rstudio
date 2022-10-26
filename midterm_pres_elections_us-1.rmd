@@ -1007,12 +1007,15 @@ scales of each plot change freely.)
 
 ```{r q8.4, echo = TRUE, eval = TRUE}
 # code goes here
-elections_2020_plot_trump %>%
-  ggplot(aes(value, pct_votes_trump)) + 
-  scale_y_continuous() + 
+graph <- elections_2020_plot_trump %>% 
+  ggplot() +
+  aes(x = value,
+      y = pct_votes_trump) +
   geom_point() +
-  facet_wrap(~covariate, nrow = 3);
-
+  scale_y_continuous(breaks = seq(0, 100, 20)) +
+  labs(x = "Value", y = "Trump's vote percentage") +
+  facet_wrap(~covariate, nrow = 3, scales = "free");
+graph;
 ```
 
 5\. Add a regression line on these plots using the `geom_smooth` layer
@@ -1024,7 +1027,9 @@ this towards the end of the course but you can set the argument to
 
 ```{r q8.5, echo = TRUE, eval = TRUE}
 # code goes here
-
+graph <- graph + 
+  geom_smooth(na.rm = TRUE, method = "lm", se = FALSE);
+graph;
 ```
 
 6\. From the graphs, is the relationship between the different
@@ -1040,7 +1045,10 @@ results from the three regressions side by side.
 
 ```{r q8.7, echo = TRUE, eval = TRUE}
 # code goes here
-
+lm_mean_income <- lm(mean_income ~ pct_votes_trump, data = elections_2020_reg_trump)
+lm_pct_const_maintenance_occ <- lm(pct_const_maintenance_occ ~ pct_votes_trump, data = elections_2020_reg_trump)
+lm_pct_high_school <- lm(pct_high_school ~ pct_votes_trump, data = elections_2020_reg_trump)
+export_summs(lm_mean_income, lm_pct_const_maintenance_occ, lm_pct_high_school, model.names = c("Mean Income", "Const Maintenance Occ", "Pct High School"))
 ```
 
 Don't pay attention to the stars next to the coefficients and to the
