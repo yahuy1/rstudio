@@ -161,7 +161,7 @@ str(socmob)
 ```
 
 
-**1. Counties with missing upward mobility measure**
+**4a. Counties with missing upward mobility measure**
 
 ```{r}
 socmob %>%
@@ -170,7 +170,7 @@ socmob %>%
 
 There are 11 counties with missing upward mobility measure
 
-**2. Counties with population density of 0**
+**4b. Counties with population density of 0**
 
 ```{r}
 socmob %>% 
@@ -179,7 +179,7 @@ socmob %>%
 
 There are 78 counties with population density of 0.
 
-**3. Filter data to keep counties with non-missing population density greater than 0 and non-missing upward mobility measure**
+**4c. Filter data to keep counties with non-missing population density greater than 0 and non-missing upward mobility measure**
 
 ```{r}
 socmob_clean <- socmob %>%
@@ -189,7 +189,7 @@ socmob_clean <- socmob %>%
 str(socmob_clean)
 ```
 
-**4. Create a scatter plot**
+**5. Create a scatter plot**
 
 ```{r}
 ggplot(socmob_clean, aes(x = popdensity_2000, y = upward_socmob)) +
@@ -198,7 +198,7 @@ ggplot(socmob_clean, aes(x = popdensity_2000, y = upward_socmob)) +
 
 -> Because many counties have a population density of 0.
 
-**5.**
+**6.**
 
 ```{r}
 socmob_clean <- socmob_clean %>%
@@ -210,16 +210,17 @@ ggplot(socmob_clean, aes(x = log_popdensity_2000, y = upward_socmob)) +
 
 -> There is a nonlinear relationship between the two variables.
 
-**6.**
+**7.**
 
 ```{r}
 socmob_reg <- lm(upward_socmob ~ log_popdensity_2000, data = socmob_clean)
 summary(socmob_reg)
 ```
 
--> For each one unit increase in `log_popdensity_2000`, there is a 1.12 percent decrease (?)
+-> For each one unit increase in `log_popdensity_2000`, there is a 0.112 percent decrease (?)
+-> B
 
-**7.**
+**8.**
 
 -> $R^2$ is 0.1205, so approximately 12% in county-level upward social mobility is explained by the variance in the log of population density.
 
