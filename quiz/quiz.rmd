@@ -1,0 +1,233 @@
+```{r}
+library(tidyverse)
+```
+### Elite University and Income
+
+**1a.**
+
+```{r}
+income_univ <- read.csv("elite_income_1.csv", header = TRUE)
+x <- nrow(income_univ)
+
+str(income_univ)
+```
+
+**1b.**
+
+```{r}
+elite_student <- income_univ %>%
+  filter(university_attended == "elite university")
+proportion <- nrow(elite_student) / x
+proportion
+
+```
+
+**1c.**
+
+```{r}
+elite_avg_income <- income_univ %>%
+  select(university_attended, income) %>%
+  filter(university_attended == "elite university") %>%
+  summarize(mean = mean(income))
+  
+nonelite_avg_income <- income_univ %>%
+  select(university_attended, income) %>%
+  filter(university_attended == "non-elite university") %>%
+  summarize(mean = mean(income))
+
+
+difference <- elite_avg_income$mean - nonelite_avg_income$mean
+difference
+```
+
+
+
+
+**1d.**
+
+no (reference: https://www.youtube.com/watch?v=RKGw2Lp6Y8I)
+
+
+#2
+
+```{r}
+income_univ_unobs <- read.csv("elite_income_2.csv", header = TRUE)
+str(income_univ_unobs)
+```
+
+**a.**
+
+```{r}
+elite_income <- sum(income_univ_unobs$income_elite_university) / nrow(income_univ_unobs)
+nonelite_income <- sum(income_univ_unobs$income_non_elite_university) / nrow(income_univ_unobs)
+
+ATE <- elite_income - nonelite_income
+ATE
+```
+**b.**
+
+yes
+
+**c.**
+
+```{r}
+income_univ_unobs <- income_univ_unobs %>%
+  mutate(treatment = case_when(university_attended == "elite university" ~ "TRUE",
+                               university_attended == "non-elite university" ~ "FALSE"))
+
+head(income_univ_unobs)
+
+```
+
+
+
+```{r}
+#???
+selection_bias <- (difference - ATE) / ATE
+selection_bias
+```
+
+
+
+#3.
+
+
+```{r}
+income_univ_rand <- read.csv("elite_income_3.csv")
+str(income_univ_rand)
+```
+
+**a.**
+
+# Use university_attended_random to calculate SDO_random
+```{r}
+income_univ_rand <- income_univ_rand %>%
+  mutate(treatment_rand = case_when(income_univ_rand$university_attended_random == "elite university" ~ 1,
+                                    income_univ_rand$university_attended_random == "non-elite university" ~ 0))
+
+rand_elite_avg_income <- income_univ_rand %>%
+  select(treatment_rand, income_elite_university) %>%
+  filter(treatment_rand == 1) %>%
+  summarize(mean = mean(income_elite_university))
+  
+rand_nonelite_avg_income <- income_univ_rand %>%
+  select(treatment_rand, income_non_elite_university) %>%
+  filter(treatment_rand == 0) %>%
+  summarize(mean = mean(income_non_elite_university))
+
+
+SDO_random <- rand_elite_avg_income$mean - rand_nonelite_avg_income$mean
+SDO_random
+```
+
+# Use randomly generated treatment_rand variable to calculate SDE_randome
+```{r}
+income_univ_rand <- income_univ_rand %>%
+  mutate(treatment_rand = sample.int(2, nrow(income_univ), replace=TRUE) - 1)
+
+rand_elite_avg_income <- income_univ_rand %>%
+  select(treatment_rand, income_elite_university) %>%
+  filter(treatment_rand == 1) %>%
+  summarize(mean = mean(income_elite_university))
+  
+rand_nonelite_avg_income <- income_univ_rand %>%
+  select(treatment_rand, income_non_elite_university) %>%
+  filter(treatment_rand == 0) %>%
+  summarize(mean = mean(income_non_elite_university))
+
+
+SDO_random <- rand_elite_avg_income$mean - rand_nonelite_avg_income$mean
+SDO_random
+```
+
+
+
+**b.**
+
+```{r}
+abs((SDO_random - ATE) / ATE)
+```
+
+**c.**
+
+2???
+
+#Socmob
+
+
+```{r}
+socmob <- read.csv("socmob_quiz.csv", header = TRUE)
+str(socmob)
+```
+
+
+**1. Counties with missing upward mobility measure**
+
+```{r}
+socmob %>%
+  filter(is.na(upward_socmob))
+```
+
+There are 11 counties with missing upward mobility measure
+
+**2. Counties with population density of 0**
+
+```{r}
+socmob %>% 
+  filter(popdensity_2000 == 0)
+```
+
+There are 78 counties with population density of 0.
+
+**3. Filter data to keep counties with non-missing population density greater than 0 and non-missing upward mobility measure**
+
+```{r}
+socmob_clean <- socmob %>%
+  filter(popdensity_2000 > 0,
+        !is.na(upward_socmob))
+
+str(socmob_clean)
+```
+
+**4. Create a scatter plot**
+
+```{r}
+ggplot(socmob_clean, aes(x = popdensity_2000, y = upward_socmob)) +
+  geom_point() 
+```
+
+-> Because many counties have a population density of 0.
+
+**5.**
+
+```{r}
+socmob_clean <- socmob_clean %>%
+  mutate(log_popdensity_2000 = log(popdensity_2000))
+
+ggplot(socmob_clean, aes(x = log_popdensity_2000, y = upward_socmob)) + 
+  geom_point(alpha = 0.5)
+```
+
+-> There is a nonlinear relationship between the two variables.
+
+**6.**
+
+```{r}
+socmob_reg <- lm(upward_socmob ~ log_popdensity_2000, data = socmob_clean)
+summary(socmob_reg)
+```
+
+-> For each one unit increase in `log_popdensity_2000`, there is a 1.12 percent decrease (?)
+
+**7.**
+
+-> $R^2$ is 0.1205, so approximately 12% in county-level upward social mobility is explained by the variance in the log of population density.
+
+
+
+
+
+
+
+
+
