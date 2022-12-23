@@ -7,13 +7,14 @@ library(reshape2)
 ```{r}
 life_expectancy <- read.csv("./life_expectancy.csv")
 air_pollution <- read.csv("./air_pollution.csv")
+gdp_per_capita <- read.csv("./gdp_per_capita.csv")
 
 air_pollution <- air_pollution %>%
   rename(pollution_level = PM2.5.air.pollution..mean.annual.exposure..micrograms.per.cubic.meter.,
          country_name = Entity,
          country_code = Code,
          year = Year) %>%
-  mutate(year = as.numeric(year))
+  mutate(year = as.numeric(year), pollution_level = as.numeric(pollution_level))
 
 life_expectancy <- life_expectancy %>%
   select(-Series.Name, -Series.Code) %>%
@@ -21,14 +22,58 @@ life_expectancy <- life_expectancy %>%
          country_code = Country.Code) %>%
   melt(id.vars = c("country_name", "country_code"), variable.name = "year") %>%
   rename(life_expectancy = value) %>%
+  mutate(year = as.numeric(str_sub(year, 2, 5)), life_expectancy = as.numeric(life_expectancy))
+
+gdp_per_capita <- gdp_per_capita %>%
+  select(-Indicator.Name, -Indicator.Code) %>%
+  rename(country_name = Country.Name, 
+         country_code = Country.Code) %>%
+  melt(id.vars = c("country_name", "country_code"), variable.name = "year") %>%
+  rename(gdp_per_capita = value) %>%
   mutate(year = as.numeric(str_sub(year, 2, 5)))
+
+head(gdp_per_capita)
 ```
 
 ```{r}
 country_data <- merge(air_pollution, life_expectancy)
+country_data <- merge(country_data, gdp_per_capita)
 country_data_clean <- country_data %>%
   mutate(life_expectancy = ifelse(life_expectancy != "..", life_expectancy, NA)) %>%
-  filter(!is.na(life_expectancy)) 
-head(country_data)
+  filter(!is.na(life_expectancy), !is.na(gdp_per_capita), !is.na(pollution_level)) 
+head(country_data_clean)
 ```
 
+```{r}
+country_data_clean %>%
+  summarise("Mean pollution level" = mean(pollution_level),
+            "Median pollution level" = median(pollution_level),
+            "Mean life expectancy" = mean(life_expectancy), 
+            "Median life expectancy" = median(life_expectancy),
+            "Min pollution level" = min(pollution_level),
+            "Max pollution level" = max(pollution_level))
+```
+
+```{r}
+country_data_clean %>%
+  ggplot() +
+  aes(x = pollution_level) + 
+  geom_density() + 
+  geom_vline(xintercept = mean(country_data_clean$pollution_level), color="#ffc000") +
+  geom_vline(xintercept = median(country_data_clean$pollution_level), color="#440154FF") +
+  labs(title = "Density of pollution level",
+       caption = "Yellow line = mean number of pollution level; Purple line = median of pollution level") + 
+  scale_x_continuous(minor_breaks = seq(0, 100, 5))
+
+country_data_clean %>%
+  ggplot() +
+  aes(x = life_expectancy) + 
+  geom_density() + 
+  geom_vline(xintercept = mean(country_data_clean$life_expectancy), color="#ffc000") +
+  geom_vline(xintercept = median(country_data_clean$life_expectancy), color="#440154FF") +
+  labs(title = "Density of life expectancy",
+       caption = "Yellow line = mean number of life expectancy; Purple line = median of life expectancy") + 
+  scale_x_continuous(minor_breaks = seq(0, 100, 5))
+
+    
+```
