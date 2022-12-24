@@ -125,5 +125,10 @@ avg_by_year %>%
 ```
 
 ```{r}
-  
+country_data_clean %>%
+  ggplot() +
+  aes(x = year, y = gdp_per_capita) +
+  geom_line() + 
+  geom_point() +
+  labs(title = "Average gdp per capita by year")
 ```
