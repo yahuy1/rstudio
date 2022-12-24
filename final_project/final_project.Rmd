@@ -127,8 +127,15 @@ avg_by_year %>%
 ```{r}
 country_data_clean %>%
   ggplot() +
-  aes(x = year, y = gdp_per_capita) +
-  geom_line() + 
+  aes(x = pollution_level, y = life_expectancy) +
   geom_point() +
-  labs(title = "Average gdp per capita by year")
+  geom_smooth(method = "lm") + 
+  labs(title = "Relationship between pollution level and life expectancy")
+
+country_data_clean %>%
+  ggplot() +
+  aes(x = gdp_per_capita, y = pollution_level) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  labs(title = "Relationship between gdp per capita and pollution level")
 ```
