@@ -1,10 +1,19 @@
-```{r}
+```{r, message = FALSE}
 library(tidyverse)
 library(readxl)
 library(reshape2)
 ```
 
-```{r}
+# Data
+
+Since there has yet to be a dataset on the internet that provides all the measurements we needed, we had to gather and merge data from various sources. For air pollution levels, we use data from ourworldindata.org this data includes the mean annual average exposure of air to pollution for each country in the world. 
+
+In addition, we use 2 other data sets from The World Bank’s DataBank (https://databank.worldbank.org) from this data we could get the yearly average life expectancy at birth, as well as the GDP per capita of most countries.
+
+Because these data sets did not perfectly match each other, both format-wise and content-wise, we had to remove several variables and entries in order to merge them into one final set.
+
+
+```{r, warning = FALSE}
 # Read data from csv files
 life_expectancy <- read.csv("./life_expectancy.csv")
 air_pollution <- read.csv("./air_pollution.csv")
@@ -44,6 +53,9 @@ country_data <- merge(country_data, gdp_per_capita)
 country_data_clean <- country_data %>%
   mutate(life_expectancy = ifelse(life_expectancy != "..", life_expectancy, NA)) %>%
   filter(!is.na(life_expectancy), !is.na(gdp_per_capita), !is.na(pollution_level)) 
+
+# Look inside the merged data
+head(country_data_clean)
 ```
 
 ```{r}
@@ -56,8 +68,11 @@ country_data_clean %>%
             "Max pollution level" = max(pollution_level))
 ```
 
-```{r}
+# Descriptive Statistics
 
+The final data set includes statistics from 1990, 1995, 2000, 2005, and from 2010 to 2017 in 166 countries. The pollution level ranges from 5.8 to 100.8 micrograms of PM2.5 per cubic meter, with the distribution greatly right-skewed, meaning very few countries, at a point in time, have a super-fifty air pollution level. Looking at the other variables, GDP per capita has a quite similar distribution to pollution level, while the distribution of life expectancy is left-skewed - almost the exact opposite. Considering that these stats were taken at the same place and time, there could be a correlation between these variables. 
+
+```{r}
 # Density graphs
 country_data_clean %>%
   ggplot() +
@@ -72,6 +87,16 @@ country_data_clean %>%
 
 country_data_clean %>%
   ggplot() +
+  aes(x = gdp_per_capita) + 
+  geom_density() + 
+  geom_vline(xintercept = mean(country_data_clean$gdp_per_capita), color="#ffc000") +
+  geom_vline(xintercept = median(country_data_clean$gdp_per_capita), color="#440154FF") +
+  labs(title = "Density of gdp per capita",
+       caption = "Yellow line = mean number of gdp per capita;
+                  Purple line = median of gdp per capita")
+
+country_data_clean %>%
+  ggplot() +
   aes(x = life_expectancy) + 
   geom_density() + 
   geom_vline(xintercept = mean(country_data_clean$life_expectancy), color="#ffc000") +
@@ -81,18 +106,13 @@ country_data_clean %>%
                   Purple line = median of life expectancy") + 
   scale_x_continuous(minor_breaks = seq(30, 100, 10))
 
-country_data_clean %>%
-  ggplot() +
-  aes(x = gdp_per_capita) + 
-  geom_density() + 
-  geom_vline(xintercept = mean(country_data_clean$gdp_per_capita), color="#ffc000") +
-  geom_vline(xintercept = median(country_data_clean$gdp_per_capita), color="#440154FF") +
-  labs(title = "Density of life expectancy",
-       caption = "Yellow line = mean number of gdp per capita;
-                  Purple line = median of gdp per capita")
+
 ```
 
+When graphing the data with the global average by year, we can notice that there are almost exact opposite trends in the pollution level and GDP figures. They progressively decrease/increase respectively during 1990-2014, until they suddenly go up/down to hit a peak/trough in 2017 before continuing the original trend until 2017. This is really something to pay attention to when assessing the correlation between the two. Unlike the two, the plot of life expectancy looks rather normal, as the figure only go up, from almost 65 years in 1990 to a little over 72 years in 2017. 
+
 ```{r}
+# World average by year graphs
 avg_by_year <- country_data_clean %>%
   group_by(year) %>%
   summarise(year = year, pollution_level = mean(pollution_level), life_expectancy = mean(life_expectancy), gdp_per_capita = mean(gdp_per_capita), .groups = 'drop') %>%
@@ -108,34 +128,42 @@ avg_by_year %>%
 
 avg_by_year %>%
   ggplot() +
-  aes(x = year, y = life_expectancy) +
-  geom_line() + 
-  geom_point() +
-  labs(title = "Average life expectancy by year") + 
-  scale_x_continuous(breaks= c(1990, 2000, 2010, 2017))
-
-avg_by_year %>%
-  ggplot() +
   aes(x = year, y = gdp_per_capita) +
   geom_line() + 
   geom_point() +
   labs(title = "Average gdp per capita by year") + 
   scale_x_continuous(breaks= c(1990, 2000, 2010, 2017))
 
+avg_by_year %>%
+  ggplot() +
+  aes(x = year, y = life_expectancy) +
+  geom_line() + 
+  geom_point() +
+  labs(title = "Average life expectancy by year") + 
+  scale_x_continuous(breaks= c(1990, 2000, 2010, 2017))
 ```
 
+Plotting life expectancy against pollution level, as well as pollution level against GDP per capita shows that there are quite strong relationships between these variables.
+
 ```{r}
+# Life expectancy / pollution level plot
+correl_le_pl = as.character(round(cor(country_data_clean$life_expectancy, country_data_clean$pollution_level), 2))
+
 country_data_clean %>%
   ggplot() +
   aes(x = pollution_level, y = life_expectancy) +
   geom_point() +
   geom_smooth(method = "lm") + 
-  labs(title = "Relationship between pollution level and life expectancy")
+  labs(title = "Relationship between pollution level and life expectancy") + 
+  labs(caption = paste0("Correlation between the variables: ", correl_le_pl))
 
+# Pollution level / GDP per capita plot
+correl_pl_gdp = as.character(round(cor(country_data_clean$pollution_level, country_data_clean$gdp_per_capita), 2))
 country_data_clean %>%
   ggplot() +
   aes(x = gdp_per_capita, y = pollution_level) +
   geom_point() +
   geom_smooth(method = "lm") + 
-  labs(title = "Relationship between gdp per capita and pollution level")
+  labs(title = "Relationship between gdp per capita and pollution level") + 
+  labs(caption = paste0("Correlation between the variables: ", correl_pl_gdp))
 ```
