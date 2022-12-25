@@ -1,14 +1,36 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Final Project
+
+# Are the effects of air pollution disproportionnate across countries depending on GDP ?
+
+## By Giang Le and Julia Kobic
+
 ```{r, message = FALSE}
 library(tidyverse)
 library(readxl)
 library(reshape2)
 ```
 
+# Introduction
+
+Since the Industrial Revolution air pollution, which is defined by the World Health Organisation as *“contamination of the indoor or outdoor environment by any chemical, physical or biological agent that modifies the natural characteristics of the atmosphere.”* has been rising exponentially.
+Although the effects are devastating worldwide (The World Health Organisation estimates that over 99% of the world population is exposed to a level of air pollution above their guideline limits), levels of exposure and their consequences seem to vary according to countries and regions.
+Indeed, the WHO also states that 89% of premature deaths linked to air pollution occurred in low- and middle-income countries, which would suggest that these countries feel the impact of environmental transgressions much more intensely than higher income countries.
+
+Which countries are more exposed to air pollution and its consequences ? More precisely, is there a link between air pollution and pollution-related deaths and GDP ?
+
 # Data
 
 Since there has yet to be a dataset on the internet that provides all the measurements we needed, we had to gather and merge data from various sources. For air pollution levels, we use data from ourworldindata.org this data includes the mean annual average exposure of air to pollution for each country in the world. 
 
 In addition, we use 2 other data sets from The World Bank’s DataBank (https://databank.worldbank.org) from this data we could get the yearly average life expectancy at birth, as well as the GDP per capita of most countries.
+
+Finally, we are using a dataset from the OECD (https://data.oecd.org) in order to obtain the statistics on early mortality linked to air pollution.
 
 Because these data sets did not perfectly match each other, both format-wise and content-wise, we had to remove several variables and entries in order to merge them into one final set.
 
@@ -18,6 +40,7 @@ Because these data sets did not perfectly match each other, both format-wise and
 life_expectancy <- read.csv("./life_expectancy.csv")
 air_pollution <- read.csv("./air_pollution.csv")
 gdp_per_capita <- read.csv("./gdp_per_capita.csv")
+pollution_deaths <- read_csv("./pollution_deaths.csv")
 
 # Modify data, removing unnecessary variables, and uniforming variable names
 air_pollution <- air_pollution %>%
@@ -42,21 +65,36 @@ gdp_per_capita <- gdp_per_capita %>%
   melt(id.vars = c("country_name", "country_code"), variable.name = "year") %>%
   rename(gdp_per_capita = value) %>%
   mutate(year = as.numeric(str_sub(year, 2, 5)))
+
+pollution_deaths <- subset(pollution_deaths, select = -c(SUBJECT, MEASURE, FREQUENCY, INDICATOR))
+
+pollution_deaths <- pollution_deaths %>%
+  rename(country_code = LOCATION,
+         year = TIME,
+         deaths_per_1000000 = Value) %>%
+  mutate(year = as.numeric(year), deaths_per_1000000 = as.numeric(deaths_per_1000000))
+
+
 ```
 
 ```{r}
 # Merge to one data frame
 country_data <- merge(air_pollution, life_expectancy)
 country_data <- merge(country_data, gdp_per_capita)
+country_data <- merge(country_data, pollution_deaths)
+
 
 # Clean the data, removing NA entries
-country_data_clean <- country_data %>%
+country_data_clean = country_data %>%
+  select(-`Flag Codes`) %>%
   mutate(life_expectancy = ifelse(life_expectancy != "..", life_expectancy, NA)) %>%
-  filter(!is.na(life_expectancy), !is.na(gdp_per_capita), !is.na(pollution_level)) 
+  filter(!is.na(life_expectancy), !is.na(gdp_per_capita), !is.na(pollution_level))  
 
 # Look inside the merged data
 head(country_data_clean)
 ```
+
+The final dataset contains 1695 observations of 8 variables, of which 4 variables are particularly of interest to us : 
 
 ```{r}
 country_data_clean %>%
@@ -65,12 +103,14 @@ country_data_clean %>%
             "Mean life expectancy" = mean(life_expectancy), 
             "Median life expectancy" = median(life_expectancy),
             "Min pollution level" = min(pollution_level),
-            "Max pollution level" = max(pollution_level))
+            "Max pollution level" = max(pollution_level),
+            "Mean pollution-related deaths" = mean(deaths_per_1000000),
+            "Median pollution-related deaths" = median(deaths_per_1000000))
 ```
 
 # Descriptive Statistics
 
-The final data set includes statistics from 1990, 1995, 2000, 2005, and from 2010 to 2017 in 166 countries. The pollution level ranges from 5.8 to 100.8 micrograms of PM2.5 per cubic meter, with the distribution greatly right-skewed, meaning very few countries, at a point in time, have a super-fifty air pollution level. Looking at the other variables, GDP per capita has a quite similar distribution to pollution level, while the distribution of life expectancy is left-skewed - almost the exact opposite. Considering that these stats were taken at the same place and time, there could be a correlation between these variables. 
+The final data set includes statistics from 1990, 1995, 2000, 2005, and from 2010 to 2017 in 166 countries. The pollution level ranges from 5.8 to 100.8 micrograms of PM2.5 per cubic meter, with the distribution greatly right-skewed, meaning very few countries, at a point in time, have a super-fifty air pollution level. Looking at the other variables, GDP per capita has a quite similar distribution to pollution level and the pollution-related deaths, while the distribution of life expectancy is left-skewed - almost the exact opposite. Considering that these stats were taken at the same place and time, there could be a correlation between these variables. 
 
 ```{r}
 # Density graphs
@@ -106,16 +146,25 @@ country_data_clean %>%
                   Purple line = median of life expectancy") + 
   scale_x_continuous(minor_breaks = seq(30, 100, 10))
 
+country_data_clean %>%
+  ggplot() +
+  aes(x = deaths_per_1000000) + 
+  geom_density() + 
+  geom_vline(xintercept = mean(country_data_clean$deaths_per_1000000), color="#ffc000") +
+  geom_vline(xintercept = median(country_data_clean$deaths_per_1000000), color="#440154FF") +
+  labs(title = "Density of pollution-related deaths",
+       caption = "Yellow line = mean number of pollution-realted deaths;
+                  Purple line = median of pollution-related deaths")
 
 ```
 
-When graphing the data with the global average by year, we can notice that there are almost exact opposite trends in the pollution level and GDP figures. They progressively decrease/increase respectively during 1990-2014, until they suddenly go up/down to hit a peak/trough in 2017 before continuing the original trend until 2017. This is really something to pay attention to when assessing the correlation between the two. Unlike the two, the plot of life expectancy looks rather normal, as the figure only go up, from almost 65 years in 1990 to a little over 72 years in 2017. 
+When graphing the data with the global average by year, we can notice that there are almost exact opposite trends in the pollution level and GDP figures. They progressively decrease/increase respectively during 1990-2014, until they suddenly go up/down to hit a peak/trough in 2017 before continuing the original trend until 2017. This is really something to pay attention to when assessing the correlation between the two. Unlike the two, the plot of life expectancy looks rather normal, as the figure only go up, from almost 65 years in 1990 to a little over 72 years in 2017. The plot of pollution-related deaths also has a distinct form as it increases from 1990 to 2000, hits a small trough in 2005 then returns back to the previous level in 2010, and finally decreases from 2010 to 2017. Apart from the trough in 2005, its shape is similar to that of a second-degree polynomial.
 
 ```{r}
 # World average by year graphs
 avg_by_year <- country_data_clean %>%
   group_by(year) %>%
-  summarise(year = year, pollution_level = mean(pollution_level), life_expectancy = mean(life_expectancy), gdp_per_capita = mean(gdp_per_capita), .groups = 'drop') %>%
+  summarise(year = year, pollution_level = mean(pollution_level), life_expectancy = mean(life_expectancy), gdp_per_capita = mean(gdp_per_capita), deaths_per_1000000 = mean(deaths_per_1000000), .groups = 'drop') %>%
   distinct(.keep_all = TRUE)
 
 avg_by_year %>%
@@ -141,9 +190,19 @@ avg_by_year %>%
   geom_point() +
   labs(title = "Average life expectancy by year") + 
   scale_x_continuous(breaks= c(1990, 2000, 2010, 2017))
+
+avg_by_year %>%
+  ggplot() +
+  aes(x = year, y = deaths_per_1000000) +
+  geom_line() + 
+  geom_point() +
+  labs(title = "Average pollution-related deaths by year") + 
+  scale_x_continuous(breaks= c(1990, 2000, 2010, 2017))
+
 ```
 
-Plotting life expectancy against pollution level, as well as pollution level against GDP per capita shows that there are quite strong relationships between these variables.
+Plotting life expectancy against pollution level, as well as pollution level against GDP per capita shows that there are quite strong negative correlations between these variables. There is also a slightly weaker negative correlation between pollution-related deaths and GDP.
+It is interesting to note however that the correlation between pollution levels and pollution-related deaths is very low, which implies the existence of disparities in terms of the effects that pollution has depending on the affected country.
 
 ```{r}
 # Life expectancy / pollution level plot
@@ -157,13 +216,117 @@ country_data_clean %>%
   labs(title = "Relationship between pollution level and life expectancy") + 
   labs(caption = paste0("Correlation between the variables: ", correl_le_pl))
 
+
 # Pollution level / GDP per capita plot
 correl_pl_gdp = as.character(round(cor(country_data_clean$pollution_level, country_data_clean$gdp_per_capita), 2))
 country_data_clean %>%
   ggplot() +
   aes(x = gdp_per_capita, y = pollution_level) +
   geom_point() +
+  geom_smooth(method = "lm", formula = y ~ log(x)) + 
+  labs(title = "Relationship between gdp per capita and pollution level") + 
+  labs(caption = paste0("Correlation between the variables: ", correl_pl_gdp))
+
+
+# Pollution-related deaths / GDP per capita plot
+
+correl_prd_gdp = as.character(round(cor(country_data_clean$deaths_per_1000000, country_data_clean$gdp_per_capita), 2))
+country_data_clean %>%
+  ggplot() +
+  aes(x = gdp_per_capita, y = deaths_per_1000000) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  labs(title = "Relationship between gdp per capita and pollution-related deaths") + 
+  labs(caption = paste0("Correlation between the variables: ", correl_prd_gdp))
+
+# Pollution-related deaths / GDP per capita plot
+
+correl_prd_pl = as.character(round(cor(country_data_clean$deaths_per_1000000, country_data_clean$pollution_level), 2))
+country_data_clean %>%
+  ggplot() +
+  aes(x = pollution_level, y = deaths_per_1000000) +
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  labs(title = "Relationship between pollution levels and pollution-related deaths") + 
+  labs(caption = paste0("Correlation between the variables: ", correl_prd_pl))
+
+```
+
+# Methodology
+
+Now that we have established the existence of a correlation between GDP and pollution levels as well as GDP and pollution-related deaths, it is time to investigate a possible causal effect between GDP and our two other variables of interest. In order to do so, we will be using regression analysis.
+We will being by determining the most adapted model for each correlation by running both a linear and a logarithmic regression, and comparing the r^2 coefficients. The model with the highest coefficient is best suited to the analysis.
+
+```{r}
+# Pollution level / GDP per capita regression
+pollution_gdp <- lm(country_data_clean$pollution_level ~ country_data_clean$gdp_per_capita)
+summary(pollution_gdp)
+
+# Pollution level / GDP per capita regression (log)
+pollution_gdp <- lm(country_data_clean$pollution_level ~ log(country_data_clean$gdp_per_capita))
+summary(pollution_gdp)
+
+
+```
+
+It appears that the best suited model to express the relationship between pollution levels and GDP per capita is the logarithmic model as 0.1638 > 0.08928.
+Therefore, the regression of GDP per capita on pollution levels will have the following formula :
+pollution levels = β0 + β1 × log(GDP per capita) + ε
+
+Thus, according to the previous regression :
+pollution levels = 67.7659 - 4.6323 x log(GDP per capita) + ε
+This means that a 4.6323 percent drop in GDP per capita is linked to a 1 point rise in pollution levels.
+
+So, lower-income countries do indeed seem to be more exposed to air pollution.
+
+The relationship between pollution levels and log(GDP per capita) can be represented in the following graph :
+
+```{r}
+# Pollution level / GDP per capita plot
+correl_pl_gdp = as.character(round(cor(country_data_clean$pollution_level, country_data_clean$gdp_per_capita), 2))
+country_data_clean %>%
+  ggplot() +
+  aes(x = log(gdp_per_capita), y = pollution_level) +
+  geom_point() +
   geom_smooth(method = "lm") + 
   labs(title = "Relationship between gdp per capita and pollution level") + 
   labs(caption = paste0("Correlation between the variables: ", correl_pl_gdp))
+```
+
+Now, let's apply the same reasoning to the relationship between pollution-related deaths and GDP :
+
+```{r}
+# Pollution-related deaths / GDP per capita regression
+deaths_gdp <- lm(country_data_clean$deaths_per_1000000 ~ country_data_clean$gdp_per_capita)
+summary(deaths_gdp)
+
+# Pollution-related deaths / GDP per capita regression (log)
+deaths_gdp_log <- lm(country_data_clean$deaths_per_1000000 ~ log(country_data_clean$gdp_per_capita))
+summary(deaths_gdp_log)
+
+
+```
+It appears that the better suited model to express the relationship between pollution levels and GDP per capita is the linear model as 0.02049 > 0.01573 .
+Therefore, the regression of GDP per capita on pollution levels should have the following formula :
+pollution levels = β0 + β1 × GDP per capita + ε
+
+Thus, according to the previous regression :
+pollution levels = 187.113 + 22.026 x GDP per capita + ε
+However, the correlation coefficient on this model is very low, which poses a limit to this type of simplified regression. Indeed, this regression also contradicts our previous findings in which the relationship between the two variables was a negative correlation, whereas here it is a positive one.
+
+Therefore, it appears necessary to run a multiple regression in order to take into account other factors in order to hypothesise a more accurate causal relationship.
+
+
+# Results and analysis
+
+```{r}
+# Deaths / everything regression
+death <- lm(country_data_clean$deaths_per_1000000 ~ country_data_clean$gdp_per_capita + country_data_clean$pollution_level + country_data_clean$life_expectancy)
+summary(death)
+
+# Pollution level / GDP per capita regression
+expectancy_gdp <- lm(country_data_clean$life_expectancy ~ country_data_clean$gdp_per_capita)
+summary(expectancy_gdp)
+
+
 ```
