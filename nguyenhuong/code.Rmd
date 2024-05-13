@@ -1,0 +1,94 @@
+---
+title: "Data"
+output: html_document
+date: "2024-04-16"
+---
+
+```{r, echo=TRUE}
+library("readxl")
+library("dplyr")
+library("tidyverse")
+library("ltm")
+```
+
+```{r, echo=TRUE}
+data = read.csv("data1.csv")
+```
+
+```{r, echo=TRUE}
+gioi_tinh = data %>% 
+  group_by(GIOI_TINH) %>%
+  mutate(GIOI_TINH = as.character(GIOI_TINH)) %>%
+  summarise(freq = n(), 
+            pct = as.double(n() / nrow(data) * 100)) %>%
+  mutate(cpct = cumsum(pct))
+
+gioi_tinh %>% 
+  summarise(freq = sum(freq),
+            pct = sum(pct),
+            GIOI_TINH = "TOTAL") %>%
+  bind_rows(gioi_tinh,.)
+```
+```{r, echo=TRUE}
+do_tuoi = data %>% 
+  group_by(DO_TUOI) %>%
+  mutate(DO_TUOI = as.character(DO_TUOI)) %>%
+  summarise(freq = n(), 
+            pct = as.double(n() / nrow(data) * 100)) %>%
+  mutate(cpct = cumsum(pct))
+
+do_tuoi %>% 
+  summarise(freq = sum(freq),
+            pct = sum(pct),
+            DO_TUOI = "TOTAL") %>%
+  bind_rows(do_tuoi,.)
+```
+
+```{r, echo=TRUE}
+hocvan = data %>% 
+  group_by(HOCVAN) %>%
+  mutate(HOCVAN = as.character(HOCVAN)) %>%
+  summarise(freq = n(), 
+            pct = as.double(n() / nrow(data) * 100)) %>%
+  mutate(cpct = cumsum(pct))
+
+hocvan %>% 
+  summarise(freq = sum(freq),
+            pct = sum(pct),
+            HOCVAN = "TOTAL") %>%
+  bind_rows(hocvan,.)
+```
+
+```{r, echo=TRUE}
+tham_nien = data %>% 
+  group_by(THAM_NIEN) %>%
+  mutate(THAM_NIEN = as.character(THAM_NIEN)) %>%
+  summarise(freq = n(), 
+            pct = as.double(n() / nrow(data) * 100)) %>%
+  mutate(cpct = cumsum(pct))
+
+tham_nien %>% 
+  summarise(freq = sum(freq),
+            pct = sum(pct),
+            THAM_NIEN = "TOTAL") %>%
+  bind_rows(tham_nien,.)
+```
+
+```{r, echo=TRUE}
+data = subset(data, select = -(37:40))
+
+nr <- function(x) sum(!is.na(x))
+
+data %>%
+  summarise_all(list(n = nr, min = min, max = max, mean = mean, sd = sd)) %>%
+  tidyr::pivot_longer(cols = everything(),
+               names_sep = "_",
+               names_to  = c("variable", ".value"))
+```
+
+```{r, echo=TRUE}
+
+subdata = data[ , grepl("ES", names(data))]
+print(c("Cronbach's Alpha" = cronbach.alpha(subdata)$alpha, n = as.integer(ncol(subdata))))
+
+```
